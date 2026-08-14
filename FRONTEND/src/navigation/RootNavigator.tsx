@@ -5,6 +5,7 @@ import { AccountScreen } from "../screens/AccountScreen";
 import { FavoriteScreen } from "../screens/FavoriteScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
+import { PRIMARY_COLOR } from "../constant";
 
 export type RootTabParamList = {
   Account: undefined;
@@ -19,7 +20,7 @@ export function RootNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: "#d900ff",
+        tabBarActiveTintColor: PRIMARY_COLOR,
         tabBarInactiveTintColor: "gray",
       }}
     >
