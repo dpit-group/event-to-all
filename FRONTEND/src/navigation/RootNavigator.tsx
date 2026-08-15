@@ -20,6 +20,8 @@ export function RootNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
+        headerShown: true,
+        headerTitleAlign: "left",
         tabBarActiveTintColor: PRIMARY_COLOR,
         tabBarInactiveTintColor: "gray",
       }}
