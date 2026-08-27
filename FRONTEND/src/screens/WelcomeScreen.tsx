@@ -22,7 +22,7 @@ export function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
       {/* LOGO */}
       <View style={styles.logoContainer}>
         <Image
-          source={require("../Images/eventoall-logo.png")}
+          source={require("../resources/Logo.png")}
           style={styles.logoImage}
           resizeMode="contain"
         />
