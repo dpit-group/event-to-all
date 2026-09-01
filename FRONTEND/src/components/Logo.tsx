@@ -15,8 +15,9 @@ export function Logo() {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems:"flex-end",
+    justifyContent: "flex-end"
+    
   },
   logo: {
     width: 110,

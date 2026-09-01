@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, View } from "react-native";
 
 import { RootNavigator } from "./src/navigation/RootNavigator";
@@ -14,29 +14,41 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      {showWelcome ? (
-        <WelcomeScreen onContinue={() => setShowWelcome(false)} />
-      ) : (
-        <View style={styles.appContainer}>
-          <View style={styles.topBar}>
-            <View style={styles.menuWrapper}>
-              <HamburgerMenu />
-            </View>
-            <View style={styles.logoWrapper}>
-              <Logo />
-            </View>
-          </View>
-
-          <View style={styles.content}>
-            <NavigationContainer>
-              <RootNavigator />
-            </NavigationContainer>
-          </View>
-        </View>
-      )}
-
+      <AppContent
+        showWelcome={showWelcome}
+        onContinue={() => setShowWelcome(false)}
+      />
       <StatusBar style="auto" />
     </SafeAreaProvider>
+  );
+}
+
+function AppContent({
+  showWelcome,
+  onContinue,
+}: {
+  showWelcome: boolean;
+  onContinue: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+
+  return showWelcome ? (
+    <WelcomeScreen onContinue={onContinue} />
+  ) : (
+    <View style={styles.appContainer}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 8, height: 48 + insets.top }]}>
+        <View style={styles.menuWrapper} />
+        <View style={styles.logoWrapper}>
+          <Logo />
+        </View>
+      </View>
+
+      <View style={styles.content}>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </View>
+    </View>
   );
 }
 
@@ -46,10 +58,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   topBar: {
-    height: 56,
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "baseline",
+    justifyContent: "space-between",
     paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#e6e6e6",
@@ -59,14 +70,22 @@ const styles = StyleSheet.create({
   },
   menuWrapper: {
     width: 50,
+    height: 24,
     alignItems: "flex-start",
     justifyContent: "center",
     zIndex: 1001,
   },
   logoWrapper: {
-    flex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     alignItems: "center",
     justifyContent: "center",
+    pointerEvents: "none",
+    transform: [{ scale: 1.2 }],
+    marginTop: 35,
   },
   content: {
     flex: 1,

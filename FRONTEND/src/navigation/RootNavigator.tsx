@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 
 import { AccountScreen } from "../screens/AccountScreen";
@@ -6,6 +7,7 @@ import { FavoriteScreen } from "../screens/FavoriteScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { PRIMARY_COLOR } from "../constant";
+import { FilterScreen } from "../screens/FilterScreen";
 
 export type RootTabParamList = {
   Account: undefined;
@@ -14,16 +16,72 @@ export type RootTabParamList = {
   Search: undefined;
 };
 
+export type SearchStackParamList = {
+  SearchMain: {
+    appliedFilters?: {
+      date: string | null;
+      distance: number;
+      types: string[];
+    } | null;
+  };
+  Filter: {
+    currentFilters?: {
+      date: string | null;
+      distance: number;
+      types: string[];
+    } | null;
+  } | undefined;
+};
+
 const Tab = createBottomTabNavigator<RootTabParamList>();
+const SearchStack = createNativeStackNavigator<SearchStackParamList>();
+
+function SearchStackNavigator() {
+  return (
+    <SearchStack.Navigator>
+      <SearchStack.Screen
+        name="SearchMain"
+        component={SearchScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <SearchStack.Screen
+        name="Filter"
+        component={FilterScreen}
+        options={{
+          title: "FILTER",
+          headerShown: false,
+          headerStyle: {
+          },
+          headerTintColor: "#1d1d1d",
+          headerTitleAlign: "left",
+          headerTitleStyle: {
+            fontSize: 14,
+            fontWeight: "600",
+          },
+        }}
+      />
+    </SearchStack.Navigator>
+  );
+}
 
 export function RootNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
+        headerStyle: {
+          height: 100,
+        },
+        headerTintColor: "#1d1d1d",
         headerTitleAlign: "left",
         tabBarActiveTintColor: PRIMARY_COLOR,
         tabBarInactiveTintColor: "gray",
+        headerTitleStyle: {
+          fontSize: 16,
+          fontWeight: "600",
+        },
       }}
     >
       <Tab.Screen
@@ -38,7 +96,7 @@ export function RootNavigator() {
       />
       <Tab.Screen
         name="Search"
-        component={SearchScreen}
+        component={SearchStackNavigator}
         options={{
           title: "Search",
           tabBarIcon: ({ color, size }) => (

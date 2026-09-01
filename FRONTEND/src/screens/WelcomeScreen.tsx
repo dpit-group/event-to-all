@@ -161,12 +161,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 30,
-    paddingTop: 30,
+    paddingTop: 52,
     paddingBottom: 30,
   },
 
   logoContainer: {
     alignItems: "center",
+    marginTop: 12,
     marginBottom: 18,
   },
 
