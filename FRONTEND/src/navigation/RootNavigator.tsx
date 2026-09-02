@@ -22,15 +22,19 @@ export type SearchStackParamList = {
       date: string | null;
       distance: number;
       types: string[];
+      ageLimit?: string;
     } | null;
   };
-  Filter: {
-    currentFilters?: {
-      date: string | null;
-      distance: number;
-      types: string[];
-    } | null;
-  } | undefined;
+  Filter:
+    | {
+        currentFilters?: {
+          date: string | null;
+          distance: number;
+          types: string[];
+          ageLimit?: string;
+        } | null;
+      }
+    | undefined;
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -52,8 +56,7 @@ function SearchStackNavigator() {
         options={{
           title: "FILTER",
           headerShown: false,
-          headerStyle: {
-          },
+          headerStyle: {},
           headerTintColor: "#1d1d1d",
           headerTitleAlign: "left",
           headerTitleStyle: {

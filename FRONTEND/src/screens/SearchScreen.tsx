@@ -13,11 +13,14 @@ type AppliedFilters = {
   date: string | null;
   distance: number;
   types: string[];
+  ageLimit?: string;
 };
 
 export function SearchScreen() {
   const [searchText, setSearchText] = useState("");
-  const [activeFilters, setActiveFilters] = useState<AppliedFilters | null>(null);
+  const [activeFilters, setActiveFilters] = useState<AppliedFilters | null>(
+    null,
+  );
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
 
@@ -25,6 +28,11 @@ export function SearchScreen() {
     const filters = route.params?.appliedFilters ?? null;
     setActiveFilters(filters);
   }, [route.params]);
+
+  const handleClearFilters = () => {
+    setActiveFilters(null);
+    navigation.setParams({ appliedFilters: null });
+  };
 
   return (
     <View style={styles.container}>
@@ -53,24 +61,52 @@ export function SearchScreen() {
             navigation.navigate("Filter", {
               currentFilters: activeFilters ?? {
                 date: null,
-                distance: 5,
+                distance: 2,
                 types: ["Concerts"],
+                ageLimit: "0+",
               },
             })
           }
         >
-          <Text style={styles.buttonText}>Filters</Text>
+          <Text style={styles.filterButtonText}>Filters</Text>
         </TouchableOpacity>
       </View>
 
       {activeFilters && (
         <View style={styles.filterSummary}>
-          <Text style={styles.filterSummaryText}>
-            Active filters:{" "}
-            {activeFilters.types.length ? activeFilters.types.join(", ") : ""}
-            {activeFilters.types.length ? ` • ${activeFilters.distance} km` : `${activeFilters.distance} km`}
-            {activeFilters.date ? ` • ${activeFilters.date}` : ""}
-          </Text>
+          <Text style={styles.filterSummaryText}>Active filters</Text>
+          <View style={styles.filterChipRow}>
+            {activeFilters.types.map((type) => (
+              <View key={type} style={styles.filterChip}>
+                <Text style={styles.filterChipText}>{type}</Text>
+              </View>
+            ))}
+            <View style={styles.filterChip}>
+              <Text style={styles.filterChipText}>
+                {activeFilters.distance} km
+              </Text>
+            </View>
+            {activeFilters.date && (
+              <View style={styles.filterChip}>
+                <Text style={styles.filterChipText}>{activeFilters.date}</Text>
+              </View>
+            )}
+            {activeFilters.ageLimit && (
+              <View style={styles.filterChip}>
+                <Text style={styles.filterChipText}>
+                  {activeFilters.ageLimit}
+                </Text>
+              </View>
+            )}
+            <TouchableOpacity
+              style={styles.clearFilterChip}
+              onPress={handleClearFilters}
+              accessibilityRole="button"
+              accessibilityLabel="Clear filters"
+            >
+              <Text style={styles.clearFilterChipText}>X</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -125,6 +161,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  filterButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   filterSummary: {
     marginTop: 12,
     backgroundColor: "#f0ebff",
@@ -136,5 +177,39 @@ const styles = StyleSheet.create({
     color: "#3b2b6f",
     fontSize: 13,
     fontWeight: "600",
+    marginBottom: 8,
+  },
+  filterChipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  filterChip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#6f01ff",
+    backgroundColor: "#6f01ff",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  filterChipText: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  clearFilterChip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#6f01ff",
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  clearFilterChipText: {
+    color: "#6f01ff",
+    fontSize: 13,
+    fontWeight: "700",
   },
 });

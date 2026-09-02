@@ -12,13 +12,23 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 
-const EVENT_TYPES = ["Clubs", "Concerts", "Festivals", "Parties", "Cultural", "Product Launch"] as const;
+const EVENT_TYPES = [
+  "Clubs",
+  "Concerts",
+  "Festivals",
+  "Parties",
+  "Cultural",
+  "Product Launch",
+] as const;
 type EventType = (typeof EVENT_TYPES)[number];
+const AGE_LIMITS = ["0+", "12+", "16+", "18+"] as const;
+type AgeLimit = (typeof AGE_LIMITS)[number];
 
 const DEFAULT_FILTERS = {
   date: null as Date | null,
-  distance: 5,
+  distance: 2,
   selectedTypes: [] as EventType[],
+  ageLimit: "0+" as AgeLimit,
 };
 
 export function FilterScreen() {
@@ -35,13 +45,22 @@ export function FilterScreen() {
     return new Date(year, month - 1, day);
   };
 
-  const [date, setDate] = useState<Date | null>(parseDateFromString(savedFilters.date));
+  const [date, setDate] = useState<Date | null>(
+    parseDateFromString(savedFilters.date),
+  );
+  const [time, setTime] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [distance, setDistance] = useState<number>(savedFilters.distance ?? DEFAULT_FILTERS.distance);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [distance, setDistance] = useState<number>(
+    savedFilters.distance ?? DEFAULT_FILTERS.distance,
+  );
   const [sliderWidth, setSliderWidth] = useState(0);
   const [sliderOffsetX, setSliderOffsetX] = useState(0);
   const [selectedTypes, setSelectedTypes] = useState<EventType[]>(
-    savedFilters.types ?? DEFAULT_FILTERS.selectedTypes
+    savedFilters.types ?? DEFAULT_FILTERS.selectedTypes,
+  );
+  const [ageLimit, setAgeLimit] = useState<AgeLimit | null>(
+    savedFilters.ageLimit ?? DEFAULT_FILTERS.ageLimit,
   );
 
   const updateDistanceFromPosition = (pageX?: number) => {
@@ -60,8 +79,12 @@ export function FilterScreen() {
     setSelectedTypes((current) =>
       current.includes(type)
         ? current.filter((item) => item !== type)
-        : [...current, type]
+        : [...current, type],
     );
+  };
+
+  const selectAgeLimit = (limit: AgeLimit) => {
+    setAgeLimit(limit);
   };
 
   const handleDistanceChange = (positionX?: number) => {
@@ -80,8 +103,24 @@ export function FilterScreen() {
     });
   };
 
+  const formatTime = (value: Date | null) => {
+    if (!value) {
+      return "Select time";
+    }
+
+    return value.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
   const handleOpenDatePicker = () => {
     setShowDatePicker(true);
+  };
+
+  const handleOpenTimePicker = () => {
+    setShowTimePicker(true);
   };
 
   const handleApplyFilters = () => {
@@ -93,27 +132,35 @@ export function FilterScreen() {
         date: date ? formatDate(date) : null,
         distance,
         types: selectedTypes,
+        ageLimit,
       },
     });
-
-    /*Alert.alert(
+    console.log(
+      "Applied filters:",
+      `Date: ${date ? formatDate(date) : "Any date"}\nDistance: ${distance} km\nTypes: ${selectedTypeText}\nAge limit: ${ageLimit ?? "Any age"}`,
+    );
+    /*
+    Alert.alert(
       "Filters applied",
-      `Date: ${date ? formatDate(date) : "Any date"}\nDistance: ${distance} km\nTypes: ${selectedTypeText}`
+      `Date: ${date ? formatDate(date) : "Any date"}\nDistance: ${distance} km\nTypes: ${selectedTypeText}`,
     );
     */
   };
 
   const handleResetFilters = () => {
     setDate(DEFAULT_FILTERS.date);
+    setTime(null);
     setDistance(DEFAULT_FILTERS.distance);
     setSelectedTypes([...DEFAULT_FILTERS.selectedTypes]);
+    setAgeLimit(DEFAULT_FILTERS.ageLimit);
   };
 
   const handleGoBack = () => {
     navigation.navigate("SearchMain", { appliedFilters: null });
   };
 
-  const fillWidth = `${(Math.min(Math.max(distance, 0), 25) / 25) * 100}%` as any;
+  const fillWidth =
+    `${(Math.min(Math.max(distance, 0), 25) / 25) * 100}%` as any;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -136,7 +183,10 @@ export function FilterScreen() {
               <Pressable
                 key={type}
                 onPress={() => toggleType(type)}
-                style={[styles.typeButton, isSelected && styles.typeButtonSelected]}
+                style={[
+                  styles.typeButton,
+                  isSelected && styles.typeButtonSelected,
+                ]}
               >
                 <Text
                   style={[
@@ -153,11 +203,27 @@ export function FilterScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.label}>Date</Text>
+        <View style={styles.dateTimeRow}>
+          <View style={styles.dateTimeColumn}>
+            <Text style={styles.dateTimeButtonLabel}>Date</Text>
+            <Pressable
+              style={styles.dateTimeButton}
+              onPress={handleOpenDatePicker}
+            >
+              <Text style={styles.dateButtonText}>{formatDate(date)}</Text>
+            </Pressable>
+          </View>
 
-        <Pressable style={styles.dateButton} onPress={handleOpenDatePicker}>
-          <Text style={styles.dateButtonText}>{formatDate(date)}</Text>
-        </Pressable>
+          <View style={styles.dateTimeColumn}>
+            <Text style={styles.dateTimeButtonLabel}>Time</Text>
+            <Pressable
+              style={styles.dateTimeButton}
+              onPress={handleOpenTimePicker}
+            >
+              <Text style={styles.dateButtonText}>{formatTime(time)}</Text>
+            </Pressable>
+          </View>
+        </View>
 
         {showDatePicker && (
           <View style={styles.datePickerContainer}>
@@ -172,6 +238,26 @@ export function FilterScreen() {
 
                 if (selectedDate) {
                   setDate(selectedDate);
+                }
+              }}
+            />
+          </View>
+        )}
+
+        {showTimePicker && (
+          <View style={styles.datePickerContainer}>
+            <DateTimePicker
+              value={time ?? new Date()}
+              mode="time"
+              is24Hour={true}
+              display={Platform.OS === "ios" ? "compact" : "default"}
+              accentColor="#6f01ff"
+              themeVariant="light"
+              onChange={(_, selectedTime) => {
+                setShowTimePicker(false);
+
+                if (selectedTime) {
+                  setTime(selectedTime);
                 }
               }}
             />
@@ -217,6 +303,35 @@ export function FilterScreen() {
         </View>
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.label}>Age limit</Text>
+        <View style={styles.typeGrid}>
+          {AGE_LIMITS.map((limit) => {
+            const isSelected = ageLimit === limit;
+
+            return (
+              <Pressable
+                key={limit}
+                onPress={() => selectAgeLimit(limit)}
+                style={[
+                  styles.typeButton,
+                  isSelected && styles.typeButtonSelected,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.typeButtonText,
+                    isSelected && styles.typeButtonTextSelected,
+                  ]}
+                >
+                  {limit}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
       <View style={styles.buttonRow}>
         <Pressable style={styles.primaryButton} onPress={handleApplyFilters}>
           <Text style={styles.primaryButtonText}>Apply</Text>
@@ -252,7 +367,7 @@ const styles = StyleSheet.create({
     color: "#1d1d1d",
     flexShrink: 1,
   },
-  
+
   section: {
     backgroundColor: "#ffffff",
     borderRadius: 18,
@@ -270,13 +385,27 @@ const styles = StyleSheet.create({
     color: "#1d1d1d",
     marginBottom: 10,
   },
-  dateButton: {
+  dateTimeRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  dateTimeColumn: {
+    flex: 1,
+  },
+  dateTimeButton: {
+    flex: 1,
     backgroundColor: "#f5f2ff",
     borderColor: "#e4ddff",
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 14,
+  },
+  dateTimeButtonLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#3b2b6f",
+    marginBottom: 6,
   },
   dateButtonText: {
     fontSize: 16,
