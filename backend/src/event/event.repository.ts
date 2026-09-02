@@ -6,7 +6,7 @@ import { Event } from './entities/event.entity';
 export class EventRepository {
     Events: Event[] = [
      {
-        id: '1',
+        id: 1,
         name: 'Summer Music Festival',
         city: 'Bucharest',
         address: 'Arena Națională, Strada Maior Coravu 2',
@@ -18,7 +18,7 @@ export class EventRepository {
         artist: 'The Motans',
     },
     {
-        id: '2',
+        id: 2,
         name: 'Tech Conference 2026',
         city: 'Cluj-Napoca',
         address: 'BT Arena, Strada Uzinei Electrice',
@@ -30,7 +30,7 @@ export class EventRepository {
         artist: 'Various Speakers',
     },
     {
-        id: '3',
+        id: 3,
         name: 'Jazz in the Park',
         city: 'Cluj-Napoca',
         address: 'Central Park',
@@ -42,7 +42,7 @@ export class EventRepository {
         artist: 'Nicolas Simion',
     },
     {
-        id: '4',
+        id: 4,
         name: 'Rock Night',
         city: 'Timișoara',
         address: 'Iulius Congress Hall',
@@ -54,7 +54,7 @@ export class EventRepository {
         artist: 'Alternosfera',
     },
     {
-        id: '5',
+        id: 5,
         name: 'Food & Wine Festival',
         city: 'Brașov',
         address: 'Piața Sfatului',

@@ -2,6 +2,8 @@
 
 # dependencies
 node_modules/
+.vscode/
+backend/tsconfig.tsbuildinfo/
 
 # Expo
 .expo/

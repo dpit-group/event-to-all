@@ -1,10 +1,10 @@
-export class CreateEventDto {
-    name!: string;
-    city!: string;
-    address!: string;
-    lat!: number;
-    lng!: number;
-    startDate!: Date;
+export interface CreateEventDto {
+    name: string;
+    city: string;
+    address: string;
+    lat: number;
+    lng: number;
+    startDate: Date;
     endDate?: Date;
     minAge?: number;
     artist?: string;

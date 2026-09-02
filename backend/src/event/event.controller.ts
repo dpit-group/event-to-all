@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpStatus, HttpCode } from '@nestjs/common';
 import { EventService } from './event.service';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
-import { EventResponseDto } from './dto/event-response.dto';
+import type { CreateEventDto } from './dto/create-event.dto';
+import type { UpdateEventDto } from './dto/update-event.dto';
+import type { EventResponseDto } from './dto/event-response.dto';
 
 @Controller('event')
 export class EventController {
@@ -14,11 +14,8 @@ export class EventController {
   }
 
   @Get()
-  findAll(@Query('completed') completed?: string): EventResponseDto[] {
-    if ( completed === undefined ) {
-      return this.eventService.findAll();
-    }
-    return this.eventService.findAll ()
+  findAll(): EventResponseDto[] {
+    return this.eventService.findAll();
   }
 
   @Get(':id')
@@ -32,7 +29,6 @@ export class EventController {
   }
 
   @Delete(':id')
-  @HttpCode (HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string): string {
     return this.eventService.remove(id);
   }
