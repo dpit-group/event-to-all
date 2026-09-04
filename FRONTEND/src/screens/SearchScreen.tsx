@@ -10,7 +10,8 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 type AppliedFilters = {
-  date: string | null;
+  startDate: string | null;
+  endDate: string | null;
   distance: number;
   types: string[];
   ageLimit?: string;
@@ -60,7 +61,8 @@ export function SearchScreen() {
           onPress={() =>
             navigation.navigate("Filter", {
               currentFilters: activeFilters ?? {
-                date: null,
+                startDate: null,
+                endDate: null,
                 distance: 2,
                 types: ["Concerts"],
                 ageLimit: "0+",
@@ -86,9 +88,18 @@ export function SearchScreen() {
                 {activeFilters.distance} km
               </Text>
             </View>
-            {activeFilters.date && (
+            {activeFilters.startDate && (
               <View style={styles.filterChip}>
-                <Text style={styles.filterChipText}>{activeFilters.date}</Text>
+                <Text style={styles.filterChipText}>
+                  Start: {activeFilters.startDate}
+                </Text>
+              </View>
+            )}
+            {activeFilters.endDate && (
+              <View style={styles.filterChip}>
+                <Text style={styles.filterChipText}>
+                  End: {activeFilters.endDate}
+                </Text>
               </View>
             )}
             {activeFilters.ageLimit && (

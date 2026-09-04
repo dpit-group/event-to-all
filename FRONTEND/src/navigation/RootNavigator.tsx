@@ -8,18 +8,21 @@ import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { PRIMARY_COLOR } from "../constant";
 import { FilterScreen } from "../screens/FilterScreen";
+import { MapScreen } from "../screens/MapScreen";
 
 export type RootTabParamList = {
   Account: undefined;
   Favorite: undefined;
   Home: undefined;
   Search: undefined;
+  Map: undefined;
 };
 
 export type SearchStackParamList = {
   SearchMain: {
     appliedFilters?: {
-      date: string | null;
+      startDate: string | null;
+      endDate: string | null;
       distance: number;
       types: string[];
       ageLimit?: string;
@@ -28,7 +31,8 @@ export type SearchStackParamList = {
   Filter:
     | {
         currentFilters?: {
-          date: string | null;
+          startDate: string | null;
+          endDate: string | null;
           distance: number;
           types: string[];
           ageLimit?: string;
@@ -104,6 +108,16 @@ export function RootNavigator() {
           title: "Search",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Map"
+        component={MapScreen}
+        options={{
+          title: "Map",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="map" color={color} size={size} />
           ),
         }}
       />

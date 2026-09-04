@@ -25,7 +25,8 @@ const AGE_LIMITS = ["0+", "12+", "16+", "18+"] as const;
 type AgeLimit = (typeof AGE_LIMITS)[number];
 
 const DEFAULT_FILTERS = {
-  date: null as Date | null,
+  startDate: null as Date | null,
+  endDate: null as Date | null,
   distance: 2,
   selectedTypes: [] as EventType[],
   ageLimit: "0+" as AgeLimit,
@@ -45,12 +46,14 @@ export function FilterScreen() {
     return new Date(year, month - 1, day);
   };
 
-  const [date, setDate] = useState<Date | null>(
-    parseDateFromString(savedFilters.date),
+  const [startDate, setStartDate] = useState<Date | null>(
+    parseDateFromString(savedFilters.startDate),
   );
-  const [time, setTime] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [endDate, setEndDate] = useState<Date | null>(
+    parseDateFromString(savedFilters.endDate),
+  );
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [distance, setDistance] = useState<number>(
     savedFilters.distance ?? DEFAULT_FILTERS.distance,
   );
@@ -103,24 +106,12 @@ export function FilterScreen() {
     });
   };
 
-  const formatTime = (value: Date | null) => {
-    if (!value) {
-      return "Select time";
-    }
-
-    return value.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+  const handleOpenStartDatePicker = () => {
+    setShowStartDatePicker(true);
   };
 
-  const handleOpenDatePicker = () => {
-    setShowDatePicker(true);
-  };
-
-  const handleOpenTimePicker = () => {
-    setShowTimePicker(true);
+  const handleOpenEndDatePicker = () => {
+    setShowEndDatePicker(true);
   };
 
   const handleApplyFilters = () => {
@@ -129,7 +120,8 @@ export function FilterScreen() {
 
     navigation.navigate("SearchMain", {
       appliedFilters: {
-        date: date ? formatDate(date) : null,
+        startDate: startDate ? formatDate(startDate) : null,
+        endDate: endDate ? formatDate(endDate) : null,
         distance,
         types: selectedTypes,
         ageLimit,
@@ -137,7 +129,7 @@ export function FilterScreen() {
     });
     console.log(
       "Applied filters:",
-      `Date: ${date ? formatDate(date) : "Any date"}\nDistance: ${distance} km\nTypes: ${selectedTypeText}\nAge limit: ${ageLimit ?? "Any age"}`,
+      `Start date: ${startDate ? formatDate(startDate) : "Any date"}\nEnd date: ${endDate ? formatDate(endDate) : "Any date"}\nDistance: ${distance} km\nTypes: ${selectedTypeText}\nAge limit: ${ageLimit ?? "Any age"}`,
     );
     /*
     Alert.alert(
@@ -148,8 +140,8 @@ export function FilterScreen() {
   };
 
   const handleResetFilters = () => {
-    setDate(DEFAULT_FILTERS.date);
-    setTime(null);
+    setStartDate(DEFAULT_FILTERS.startDate);
+    setEndDate(DEFAULT_FILTERS.endDate);
     setDistance(DEFAULT_FILTERS.distance);
     setSelectedTypes([...DEFAULT_FILTERS.selectedTypes]);
     setAgeLimit(DEFAULT_FILTERS.ageLimit);
@@ -205,59 +197,58 @@ export function FilterScreen() {
       <View style={styles.section}>
         <View style={styles.dateTimeRow}>
           <View style={styles.dateTimeColumn}>
-            <Text style={styles.dateTimeButtonLabel}>Date</Text>
+            <Text style={styles.dateTimeButtonLabel}>Start date</Text>
             <Pressable
               style={styles.dateTimeButton}
-              onPress={handleOpenDatePicker}
+              onPress={handleOpenStartDatePicker}
             >
-              <Text style={styles.dateButtonText}>{formatDate(date)}</Text>
+              <Text style={styles.dateButtonText}>{formatDate(startDate)}</Text>
             </Pressable>
           </View>
 
           <View style={styles.dateTimeColumn}>
-            <Text style={styles.dateTimeButtonLabel}>Time</Text>
+            <Text style={styles.dateTimeButtonLabel}>End date</Text>
             <Pressable
               style={styles.dateTimeButton}
-              onPress={handleOpenTimePicker}
+              onPress={handleOpenEndDatePicker}
             >
-              <Text style={styles.dateButtonText}>{formatTime(time)}</Text>
+              <Text style={styles.dateButtonText}>{formatDate(endDate)}</Text>
             </Pressable>
           </View>
         </View>
 
-        {showDatePicker && (
+        {showStartDatePicker && (
           <View style={styles.datePickerContainer}>
             <DateTimePicker
-              value={date ?? new Date()}
+              value={startDate ?? new Date()}
               mode="date"
               display={Platform.OS === "ios" ? "compact" : "default"}
               accentColor="#6f01ff"
               themeVariant="light"
               onChange={(_, selectedDate) => {
-                setShowDatePicker(false);
+                setShowStartDatePicker(false);
 
                 if (selectedDate) {
-                  setDate(selectedDate);
+                  setStartDate(selectedDate);
                 }
               }}
             />
           </View>
         )}
 
-        {showTimePicker && (
+        {showEndDatePicker && (
           <View style={styles.datePickerContainer}>
             <DateTimePicker
-              value={time ?? new Date()}
-              mode="time"
-              is24Hour={true}
+              value={endDate ?? startDate ?? new Date()}
+              mode="date"
               display={Platform.OS === "ios" ? "compact" : "default"}
               accentColor="#6f01ff"
               themeVariant="light"
-              onChange={(_, selectedTime) => {
-                setShowTimePicker(false);
+              onChange={(_, selectedDate) => {
+                setShowEndDatePicker(false);
 
-                if (selectedTime) {
-                  setTime(selectedTime);
+                if (selectedDate) {
+                  setEndDate(selectedDate);
                 }
               }}
             />
