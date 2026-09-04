@@ -8,7 +8,6 @@ import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { PRIMARY_COLOR } from "../constant";
 import { FilterScreen } from "../screens/FilterScreen";
-import { MapScreen } from "../screens/MapScreen";
 
 export type RootTabParamList = {
   Account: undefined;
@@ -108,16 +107,6 @@ export function RootNavigator() {
           title: "Search",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Map"
-        component={MapScreen}
-        options={{
-          title: "Map",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="map" color={color} size={size} />
           ),
         }}
       />
