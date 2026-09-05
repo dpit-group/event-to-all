@@ -67,9 +67,7 @@ export class EventRepository {
     },
   ];
 
-  private db = new sqlite3.Database(
-    'C:\\Users\\User\\OneDrive\\Desktop\\sqlite\\sqlite-tools-win-x64-3530400\\event-to-all.db'
-  );
+  private db = new sqlite3.Database('event-to-all.db');
 
   createEvent(event: Omit<Event, 'id'>): Promise<Event> {
     return new Promise((resolve, reject) => {
