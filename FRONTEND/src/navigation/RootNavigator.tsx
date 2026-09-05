@@ -3,11 +3,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 
 import { AccountScreen } from "../screens/AccountScreen";
+import { RegisterScreen } from "../screens/RegisterScreen";
 import { FavoriteScreen } from "../screens/FavoriteScreen";
+import { EventScreen } from "../screens/EventScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { PRIMARY_COLOR } from "../constant";
 import { FilterScreen } from "../screens/FilterScreen";
+import { MapScreen } from "../screens/MapScreen";
+import { AddEventScreen } from "../screens/AddEventScreen";
+import type { Event } from "../screens/EventScreen";
 
 export type RootTabParamList = {
   Account: undefined;
@@ -15,6 +20,22 @@ export type RootTabParamList = {
   Home: undefined;
   Search: undefined;
   Map: undefined;
+};
+
+export type AccountStackParamList = {
+  AccountMain: undefined;
+  Register: undefined;
+  AddEvent: undefined;
+};
+
+export type FavoriteStackParamList = {
+  FavoriteMain: undefined;
+  Event: { event: Event };
+};
+
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Event: { event: Event };
 };
 
 export type SearchStackParamList = {
@@ -42,6 +63,9 @@ export type SearchStackParamList = {
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
+const AccountStack = createNativeStackNavigator<AccountStackParamList>();
+const FavoriteStack = createNativeStackNavigator<FavoriteStackParamList>();
+const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
 function SearchStackNavigator() {
   return (
@@ -72,9 +96,70 @@ function SearchStackNavigator() {
   );
 }
 
-export function RootNavigator() {
+function AccountStackNavigator() {
+  return (
+    <AccountStack.Navigator>
+      <AccountStack.Screen
+        name="AccountMain"
+        component={AccountScreen}
+        options={{ headerShown: false }}
+      />
+      <AccountStack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{ title: "Register" }}
+      />
+      <AccountStack.Screen
+        name="AddEvent"
+        component={AddEventScreen}
+        options={{ title: "Add Event" }}
+      />
+    </AccountStack.Navigator>
+  );
+}
+
+function FavoriteStackNavigator() {
+  return (
+    <FavoriteStack.Navigator>
+      <FavoriteStack.Screen
+        name="FavoriteMain"
+        component={FavoriteScreen}
+        options={{ headerShown: false }}
+      />
+      <FavoriteStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+    </FavoriteStack.Navigator>
+  );
+}
+
+function HomeStackNavigator() {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="HomeMain"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+    </HomeStack.Navigator>
+  );
+}
+
+export function RootNavigator({
+  initialRouteName = "Home",
+}: {
+  initialRouteName?: keyof RootTabParamList;
+}) {
   return (
     <Tab.Navigator
+      initialRouteName={initialRouteName}
       screenOptions={{
         headerShown: false,
         headerStyle: {
@@ -92,7 +177,7 @@ export function RootNavigator() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeStackNavigator}
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => (
@@ -110,10 +195,19 @@ export function RootNavigator() {
           ),
         }}
       />
-
+      <Tab.Screen
+        name="Map"
+        component={MapScreen}
+        options={{
+          title: "Map",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="map" color={color} size={size} />
+          ),
+        }}
+      />
       <Tab.Screen
         name="Favorite"
-        component={FavoriteScreen}
+        component={FavoriteStackNavigator}
         options={{
           title: "Favorite",
           tabBarIcon: ({ color, size }) => (
@@ -123,7 +217,7 @@ export function RootNavigator() {
       />
       <Tab.Screen
         name="Account"
-        component={AccountScreen}
+        component={AccountStackNavigator}
         options={{
           title: "Account",
           tabBarIcon: ({ color, size }) => (

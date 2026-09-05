@@ -25,7 +25,7 @@ const AGE_LIMITS = ["0+", "12+", "16+", "18+"] as const;
 type AgeLimit = (typeof AGE_LIMITS)[number];
 
 const DEFAULT_FILTERS = {
-  startDate: null as Date | null,
+  startDate: new Date() as Date,
   endDate: null as Date | null,
   distance: 2,
   selectedTypes: [] as EventType[],
@@ -47,7 +47,7 @@ export function FilterScreen() {
   };
 
   const [startDate, setStartDate] = useState<Date | null>(
-    parseDateFromString(savedFilters.startDate),
+    parseDateFromString(savedFilters.startDate) ?? DEFAULT_FILTERS.startDate,
   );
   const [endDate, setEndDate] = useState<Date | null>(
     parseDateFromString(savedFilters.endDate),
@@ -140,7 +140,7 @@ export function FilterScreen() {
   };
 
   const handleResetFilters = () => {
-    setStartDate(DEFAULT_FILTERS.startDate);
+    setStartDate(new Date());
     setEndDate(DEFAULT_FILTERS.endDate);
     setDistance(DEFAULT_FILTERS.distance);
     setSelectedTypes([...DEFAULT_FILTERS.selectedTypes]);

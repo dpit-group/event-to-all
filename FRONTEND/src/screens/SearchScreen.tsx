@@ -8,7 +8,6 @@ import {
   View,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
 type AppliedFilters = {
   startDate: string | null;
   endDate: string | null;
