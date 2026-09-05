@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-type AppliedFilters = {
+export type AppliedFilters = {
   startDate: string | null;
   endDate: string | null;
   distance: number;

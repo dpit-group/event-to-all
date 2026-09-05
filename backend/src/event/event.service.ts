@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { EventRepository } from './event.repository';
 import { Event } from './entities/event.entity';
+import { filterEvents, Filter } from '../filter/filter';
 
 @Injectable()
 export class EventService {
@@ -28,9 +29,8 @@ export class EventService {
     this.eventRepository.Events.push(event);
     return event;
   }
-
-  findAll() {
-    return this.eventRepository.Events;
+  findAll(filters: Filter[] = []) {
+    return filterEvents(this.eventRepository.Events, filters);
   }
 
   findOne(id: string): EventResponseDto {

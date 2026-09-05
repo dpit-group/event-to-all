@@ -3,7 +3,7 @@ import { EventService } from './event.service';
 import type { CreateEventDto } from './dto/create-event.dto';
 import type { UpdateEventDto } from './dto/update-event.dto';
 import type { EventResponseDto } from './dto/event-response.dto';
-
+import type { Filter } from '../filter/filter';
 @Controller('event')
 export class EventController {
   constructor(private readonly eventService: EventService) {}
@@ -12,10 +12,13 @@ export class EventController {
   create(@Body() createEventDto: CreateEventDto): EventResponseDto {
     return this.eventService.create(createEventDto);
   }
-
   @Get()
-  findAll(): EventResponseDto[] {
-    return this.eventService.findAll();
+  findAll(@Query() filters: Record<string, string>): EventResponseDto[] {
+    const parsedFilters: Filter[] = (Object.entries(filters) as [string, string][])
+      .filter(([, value]) => value !== undefined && value !== '')
+      .map(([criteria, value]) => ({ criteria, value }));
+
+    return this.eventService.findAll(parsedFilters);
   }
 
   @Get(':id')
