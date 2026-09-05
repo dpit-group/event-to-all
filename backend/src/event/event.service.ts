@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { randomUUID } from 'crypto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { EventRepository } from './event.repository';
 import { Event } from './entities/event.entity';
@@ -16,6 +15,9 @@ export class EventService {
     const event: Event = {       
       id: Math.floor(Math.random() * 1000), 
       name: createEventDto.name,
+      eventType: createEventDto.eventType,
+      musicType: createEventDto.musicType,
+      description: createEventDto.description,
       city: createEventDto.city,
       address: createEventDto.address,
       lat: createEventDto.lat,
