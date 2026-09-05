@@ -115,18 +115,51 @@ export class EventRepository {
           return;
         }
 
-        resolve((rows as Array<Record<string, unknown>>).map(row => ({
-          id: Number(row.id),
-          name: String(row.name),
-          city: String(row.city),
-          address: String(row.address),
-          lat: Number(row.lat),
-          lng: Number(row.lng),
-          startDate: new Date(String(row.startDate)),
-          endDate: row.endDate ? new Date(String(row.endDate)) : undefined,
-          minAge: row.minAge == null ? undefined : Number(row.minAge),
-          artist: row.artist == null ? undefined : String(row.artist),
-        })));
+        resolve((rows as Array<Record<string, unknown>>).map(row => this.mapRow(row)));
+      });
+    });
+  }
+
+  findEventById(id: number): Promise<Event | undefined> {
+    return new Promise((resolve, reject) => {
+      this.db.get('SELECT * FROM event WHERE id = ?', [id], (err, row) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(row ? this.mapRow(row as Record<string, unknown>) : undefined);
+      });
+    });
+  }
+
+  updateEvent(id: number, event: Partial<Omit<Event, 'id'>>): Promise<Event | undefined> {
+    const fields: Array<[string, unknown]> = [];
+    if (event.name !== undefined) fields.push(['name', event.name]);
+    if (event.city !== undefined) fields.push(['city', event.city]);
+    if (event.address !== undefined) fields.push(['address', event.address]);
+    if (event.lat !== undefined) fields.push(['lat', event.lat]);
+    if (event.lng !== undefined) fields.push(['lng', event.lng]);
+    if (event.startDate !== undefined) fields.push(['startDate', event.startDate.toISOString()]);
+    if (event.endDate !== undefined) fields.push(['endDate', event.endDate.toISOString()]);
+    if (event.minAge !== undefined) fields.push(['minAge', event.minAge]);
+    if (event.artist !== undefined) fields.push(['artist', event.artist]);
+
+    return new Promise((resolve, reject) => {
+      if (fields.length === 0) {
+        this.findEventById(id).then(resolve, reject);
+        return;
+      }
+
+      const columns = fields.map(([column]) => `${column} = ?`).join(', ');
+      const values = fields.map(([, value]) => value);
+      this.db.run(`UPDATE event SET ${columns} WHERE id = ?`, [...values, id], err => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        this.findEventById(id).then(resolve, reject);
       });
     });
   }
@@ -142,5 +175,20 @@ export class EventRepository {
         resolve(this.changes > 0);
       });
     });
+  }
+
+  private mapRow(row: Record<string, unknown>): Event {
+    return {
+      id: Number(row.id),
+      name: String(row.name),
+      city: String(row.city),
+      address: String(row.address),
+      lat: Number(row.lat),
+      lng: Number(row.lng),
+      startDate: new Date(String(row.startDate)),
+      endDate: row.endDate ? new Date(String(row.endDate)) : undefined,
+      minAge: row.minAge == null ? undefined : Number(row.minAge),
+      artist: row.artist == null ? undefined : String(row.artist),
+    };
   }
 }

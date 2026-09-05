@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'; 
+import { Injectable, NotFoundException } from '@nestjs/common'; 
 import { CreateEventDto } from './dto/create-event.dto'; 
 import { UpdateEventDto } from './dto/update-event.dto'; 
 import { randomUUID } from 'crypto'; 
@@ -40,27 +40,37 @@ export class EventService {
     return events;
   } 
  
-  findOne(id: string): EventResponseDto { 
-    const event = this.eventRepository.Events.find(event => event.id === Number(id)); 
-    if (!event) { 
-      throw new Error(`Event not found`); 
-    } 
-    return event; 
+  async findOne(id: string): Promise<EventResponseDto> {
+    const event = await this.eventRepository.findEventById(Number(id));
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+    return event;
   } 
  
-  update(id: string, updateEventDto: UpdateEventDto) { 
-    const event = this.eventRepository.Events.find(event => event.id === Number(id)); 
-    if (!event) { 
-      throw new Error(`Event not found`); 
-    } 
-    Object.assign(event, updateEventDto); 
-    return event; 
+  async update(id: string, updateEventDto: UpdateEventDto): Promise<EventResponseDto> {
+    const event = await this.eventRepository.updateEvent(Number(id), {
+      ...updateEventDto,
+      startDate: updateEventDto.startDate
+        ? new Date(updateEventDto.startDate)
+        : undefined,
+      endDate: updateEventDto.endDate
+        ? new Date(updateEventDto.endDate)
+        : undefined,
+    });
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+    this.eventRepository.Events = this.eventRepository.Events.map(item =>
+      item.id === event.id ? event : item,
+    );
+    return event;
   } 
  
   async deleteEvent(id: string): Promise<string> {
     const deleted = await this.eventRepository.deleteEvent(Number(id));
     if (!deleted) {
-      throw new Error(`Event not found`);
+      throw new NotFoundException('Event not found');
     }
 
     this.eventRepository.Events = this.eventRepository.Events.filter(

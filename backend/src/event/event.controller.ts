@@ -19,12 +19,12 @@ export class EventController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): EventResponseDto { 
+  async findOne(@Param('id') id: string): Promise<EventResponseDto> {
     return this.eventService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto): EventResponseDto {
+  async update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto): Promise<EventResponseDto> {
     return this.eventService.update(id, updateEventDto);
   }
 
