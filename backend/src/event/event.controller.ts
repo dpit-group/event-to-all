@@ -9,12 +9,12 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto): EventResponseDto {
-    return this.eventService.create(createEventDto);
+  async create(@Body() createEventDto: CreateEventDto): Promise<EventResponseDto> {
+    return await this.eventService.create(createEventDto);
   }
 
   @Get()
-  findAll(): EventResponseDto[] {
+  async findAll(): Promise<EventResponseDto[]> {
     return this.eventService.findAll();
   }
 
@@ -29,7 +29,7 @@ export class EventController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): string {
+  async remove(@Param('id') id: string): Promise<string> {
     return this.eventService.remove(id);
   }
 }
