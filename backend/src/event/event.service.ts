@@ -17,6 +17,7 @@ export class EventService {
     const event: Event = {       
       id: Math.floor(Math.random() * 1000), 
       name: createEventDto.name,
+      type: createEventDto.type,
       city: createEventDto.city,
       address: createEventDto.address,
       lat: createEventDto.lat,
