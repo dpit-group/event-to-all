@@ -9,4 +9,6 @@ export interface EventResponseDto {
     endDate?: Date;
     minAge?: number;
     artist?: string;
+    background?: string;
+    icon?: string;
 }

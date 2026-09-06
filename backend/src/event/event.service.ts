@@ -26,6 +26,8 @@ export class EventService {
         : undefined, 
       minAge: createEventDto.minAge, 
       artist: createEventDto.artist, 
+      background: createEventDto.background,
+      icon: createEventDto.icon,
     }; 
  
     const savedEvent = await this.eventRepository.createEvent(event); 
