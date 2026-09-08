@@ -1,9 +1,23 @@
-import { BadRequestException, Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { EventService } from './event.service';
 import type { CreateEventDto } from './dto/create-event.dto';
 import type { UpdateEventDto } from './dto/update-event.dto';
 import type { EventResponseDto } from './dto/event-response.dto';
 import type { Filter } from '../filter/filter';
+
+type FilterRequest = Filter[] | { filters: Filter[] };
+
 @Controller('event')
 export class EventController {
   constructor(private readonly eventService: EventService) {}
@@ -12,14 +26,46 @@ export class EventController {
   create(@Body() createEventDto: CreateEventDto): EventResponseDto {
     return this.eventService.create(createEventDto);
   }
-  @Get()
-  findAll(@Query() filters: Record<string, string>): EventResponseDto[] {
-    const { distance, latitude, longitude, ...simpleFilters } = filters;
-    const parsedFilters: Filter[] = (Object.entries(simpleFilters) as [string, string][])
-      .filter(([, value]) => value !== undefined && value !== '')
-      .map(([criteria, value]) => ({ criteria, value }));
 
-    if (distance !== undefined || latitude !== undefined || longitude !== undefined) {
+  @Post('filters')
+  findEventsByFilterBody(@Body() body: FilterRequest): EventResponseDto[] {
+    const filters = Array.isArray(body) ? body : body?.filters;
+
+    if (
+      !Array.isArray(filters) ||
+      filters.some(
+        (filter) =>
+          !filter ||
+          typeof filter.criteria !== 'string' ||
+          typeof filter.value !== 'string',
+      )
+    ) {
+      throw new BadRequestException(
+        'Body must contain filters with criteria and value strings',
+      );
+    }
+
+    return this.eventService.findEventbyFilters(filters);
+  }
+
+  @Get(['', 'filters'])
+  findEventsByFilters(
+    @Query() filters: Record<string, string>,
+  ): EventResponseDto[] {
+    const { distance, latitude, longitude, ...simpleFilters } = filters;
+
+    const parsedFilters: Filter[] = Object.entries(simpleFilters)
+      .filter(([, value]) => value !== undefined && value !== '')
+      .map(([criteria, value]) => ({
+        criteria,
+        value,
+      }));
+
+    if (
+      distance !== undefined ||
+      latitude !== undefined ||
+      longitude !== undefined
+    ) {
       const distanceInKm = Number(distance);
       const userLatitude = Number(latitude);
       const userLongitude = Number(longitude);
@@ -44,21 +90,24 @@ export class EventController {
       });
     }
 
-    return this.eventService.findAll(parsedFilters);
+    return this.eventService.findEventbyFilters(parsedFilters);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): EventResponseDto { 
+  findOne(@Param('id', ParseIntPipe) id: number): EventResponseDto {
     return this.eventService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto): EventResponseDto {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateEventDto: UpdateEventDto,
+  ): EventResponseDto {
     return this.eventService.update(id, updateEventDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): string {
+  remove(@Param('id', ParseIntPipe) id: number): string {
     return this.eventService.remove(id);
   }
 }
