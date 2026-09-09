@@ -29,7 +29,11 @@ export function EventCard({
         style={[styles.thumbnail, isFeatured && styles.featuredImage]}
       />
       <View
-        style={[styles.cardContent, isFeatured && styles.featuredCardContent]}
+        style={[
+          styles.cardContent,
+          !isFeatured && styles.compactCardContent,
+          isFeatured && styles.featuredCardContent,
+        ]}
       >
         <Text style={styles.eventName}>{event.name}</Text>
         <Text style={styles.eventArtist}>{event.artist}</Text>
@@ -86,8 +90,7 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
     width: 94,
-    height: 118,
-    alignSelf: "center",
+    alignSelf: "stretch",
   },
   featuredImage: {
     width: "100%",
@@ -96,6 +99,9 @@ const styles = StyleSheet.create({
   cardContent: {
     flex: 1,
     padding: 16,
+  },
+  compactCardContent: {
+    padding: 9,
   },
   featuredCardContent: {
     padding: 20,
@@ -109,17 +115,17 @@ const styles = StyleSheet.create({
     color: "#6f01ff",
     fontSize: 14,
     fontWeight: "600",
-    marginTop: 5,
+    marginTop: 3,
   },
   eventMeta: {
     color: "#4d4960",
     fontSize: 14,
-    marginTop: 12,
+    marginTop: 7,
   },
   eventLocation: {
     color: "#77718a",
     fontSize: 13,
-    marginTop: 5,
+    marginTop: 3,
   },
   removeButton: {
     alignSelf: "flex-start",

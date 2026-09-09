@@ -85,7 +85,13 @@ export function WelcomeScreen({ onContinue, onExplore }: WelcomeScreenProps) {
       <TouchableOpacity style={styles.secondaryButton} onPress={onContinue}>
         <Text style={styles.secondaryButtonText}>Continuă ca Guest</Text>
       </TouchableOpacity>
-
+      {/*BUTON LOG IN*/}
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={() => navigation.navigate("Login")}
+      >
+        <Text style={styles.secondaryButtonText}>Log In</Text>
+      </TouchableOpacity>
       <StatusBar style="auto" />
     </ScrollView>
   );
@@ -192,6 +198,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  loginButton: {
+    width: "100%",
+    maxWidth: 420,
+    height: 55,
+    backgroundColor: "#fff",
+    borderWidth: 2,
+    borderColor: "#7c3aed",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
   },
 
   secondaryButtonText: {

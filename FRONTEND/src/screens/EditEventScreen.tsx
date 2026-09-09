@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import {
   Alert,
@@ -11,15 +10,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AccountStackParamList } from "../navigation/RootNavigator";
+import type { MyEventsStackParamList } from "../navigation/RootNavigator";
+import type { Event } from "./EventScreen";
 
-type AddEventScreenProps = NativeStackScreenProps<
-  AccountStackParamList,
-  "AddEvent"
->;
+type EditEventProps =
+  | NativeStackScreenProps<AccountStackParamList, "EditEvent">
+  | NativeStackScreenProps<MyEventsStackParamList, "EditEvent">;
 
 enum AgeLimit {
   AllAges = "0",
@@ -30,73 +31,110 @@ enum AgeLimit {
 
 const AGE_OPTIONS = Object.values(AgeLimit);
 
-export function AddEventScreen({ navigation }: AddEventScreenProps) {
+type EventDraft = {
+  name: string;
+  city: string;
+  address: string;
+  lng: string;
+  lat: string;
+  date: string;
+  time: string;
+  minAge: AgeLimit | "";
+  artist: string;
+  image: string;
+};
+
+const originalEvent: EventDraft = {
+  name: "Electric Garden",
+  city: "Bucharest",
+  address: "Strada Izvor 12",
+  lng: "26.1025",
+  lat: "44.4268",
+  date: "12 October 2026",
+  time: "20:00",
+  minAge: AgeLimit.EighteenPlus,
+  artist: "The Midnight Club",
+  image:
+    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80",
+};
+
+function toEventDraft(event?: Event): EventDraft {
+  if (!event) {
+    return originalEvent;
+  }
+
+  return {
+    name: event.name,
+    city: event.city,
+    address: event.address,
+    lng: String(event.lng),
+    lat: String(event.lat),
+    date: event.date,
+    time: event.time,
+    minAge: event.minAge === undefined ? "" : String(event.minAge) as AgeLimit,
+    artist: event.artist ?? "",
+    image: event.imageUrl,
+  };
+}
+
+export function EditEventScreen({ navigation, route }: EditEventProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [eventForm, setEventForm] = useState({
-    name: "",
-    city: "",
-    address: "",
-    lng: "",
-    lat: "",
-    date: "",
-    time: "",
-    minAge: "" as AgeLimit | "",
-    artist: "",
-    image: "",
-  });
+  const [event, setEvent] = useState(() => toEventDraft(route.params?.event));
 
-  function updateEventForm<Field extends keyof typeof eventForm>(
+  function updateEvent<Field extends keyof EventDraft>(
     field: Field,
-    value: (typeof eventForm)[Field],
+    value: EventDraft[Field],
   ) {
-    setEventForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setEvent((current) => ({ ...current, [field]: value }));
   }
 
-  function handleAddEvent() {
-    console.log("New event added", eventForm);
-    setEventForm({
-      name: "",
-      city: "",
-      address: "",
-      lng: "",
-      lat: "",
-      date: "",
-      time: "",
-      minAge: "" as AgeLimit | "",
-      artist: "",
-      image: "",
-    });
+  function confirmEdits() {
+    const changedFields = Object.keys(originalEvent).filter(
+      (field) =>
+        event[field as keyof EventDraft] !==
+        originalEvent[field as keyof EventDraft],
+    );
+
+    const changes = changedFields.length
+      ? changedFields
+          .map((field) => {
+            const key = field as keyof EventDraft;
+            return `${key}: ${originalEvent[key]} -> ${event[key]}`;
+          })
+          .join("\n")
+      : "No changes were made.";
+
+    Alert.alert("Edits confirmed", changes, [
+      { text: "OK", onPress: () => navigation.goBack() },
+    ]);
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Add event</Text>
+        <Text style={styles.title}>Edit event</Text>
 
         <View style={styles.groupContainer}>
           <Text style={styles.groupTitle}>Basic info</Text>
           <TextInput
             style={styles.input}
             placeholder="Name"
-            value={eventForm.name}
-            onChangeText={(value) => updateEventForm("name", value)}
+            value={event.name}
+            onChangeText={(value) => updateEvent("name", value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Artist"
-            value={eventForm.artist}
-            onChangeText={(value) => updateEventForm("artist", value)}
+            value={event.artist}
+            onChangeText={(value) => updateEvent("artist", value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Image URL"
-            value={eventForm.image}
-            onChangeText={(value) => updateEventForm("image", value)}
+            value={event.image}
+            onChangeText={(value) => updateEvent("image", value)}
           />
         </View>
 
@@ -105,28 +143,28 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
           <TextInput
             style={styles.input}
             placeholder="City"
-            value={eventForm.city}
-            onChangeText={(value) => updateEventForm("city", value)}
+            value={event.city}
+            onChangeText={(value) => updateEvent("city", value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Address"
-            value={eventForm.address}
-            onChangeText={(value) => updateEventForm("address", value)}
+            value={event.address}
+            onChangeText={(value) => updateEvent("address", value)}
           />
           <View style={styles.rowInputs}>
             <TextInput
               style={[styles.input, styles.halfInput]}
               placeholder="Lng"
-              value={eventForm.lng}
-              onChangeText={(value) => updateEventForm("lng", value)}
+              value={event.lng}
+              onChangeText={(value) => updateEvent("lng", value)}
               keyboardType="numeric"
             />
             <TextInput
               style={[styles.input, styles.halfInput]}
               placeholder="Lat"
-              value={eventForm.lat}
-              onChangeText={(value) => updateEventForm("lat", value)}
+              value={event.lat}
+              onChangeText={(value) => updateEvent("lat", value)}
               keyboardType="numeric"
             />
           </View>
@@ -140,11 +178,9 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
               onPress={() => setShowDatePicker(true)}
             >
               <Text
-                style={
-                  eventForm.date ? styles.inputText : styles.placeholderText
-                }
+                style={event.date ? styles.inputText : styles.placeholderText}
               >
-                {eventForm.date || "Date"}
+                {event.date || "Date"}
               </Text>
             </Pressable>
             <Pressable
@@ -152,11 +188,9 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
               onPress={() => setShowTimePicker(true)}
             >
               <Text
-                style={
-                  eventForm.time ? styles.inputText : styles.placeholderText
-                }
+                style={event.time ? styles.inputText : styles.placeholderText}
               >
-                {eventForm.time || "Time"}
+                {event.time || "Time"}
               </Text>
             </Pressable>
           </View>
@@ -171,7 +205,7 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
                 setShowDatePicker(false);
                 if (date) {
                   setSelectedDate(date);
-                  updateEventForm("date", date.toLocaleDateString());
+                  updateEvent("date", date.toLocaleDateString());
                 }
               }}
             />
@@ -187,7 +221,7 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
                 setShowTimePicker(false);
                 if (time) {
                   setSelectedDate(time);
-                  updateEventForm(
+                  updateEvent(
                     "time",
                     time.toLocaleTimeString([], {
                       hour: "2-digit",
@@ -205,14 +239,14 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
                 key={age}
                 style={[
                   styles.ageOption,
-                  eventForm.minAge === age && styles.ageOptionSelected,
+                  event.minAge === age && styles.ageOptionSelected,
                 ]}
-                onPress={() => updateEventForm("minAge", age)}
+                onPress={() => updateEvent("minAge", age)}
               >
                 <Text
                   style={[
                     styles.ageOptionText,
-                    eventForm.minAge === age && styles.ageOptionTextSelected,
+                    event.minAge === age && styles.ageOptionTextSelected,
                   ]}
                 >
                   {age}+
@@ -222,16 +256,8 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => {
-            handleAddEvent();
-            Alert.alert(`${eventForm.name} has been added`, undefined, [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
-          }}
-        >
-          <Text style={styles.primaryButtonText}>Add Event</Text>
+        <TouchableOpacity style={styles.primaryButton} onPress={confirmEdits}>
+          <Text style={styles.primaryButtonText}>Confirm edits</Text>
         </TouchableOpacity>
       </View>
       <StatusBar style="auto" />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
+  Alert,
   StyleSheet,
   Switch,
   Text,
@@ -8,8 +9,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export function RegisterScreen() {
+import type { AccountStackParamList } from "../navigation/RootNavigator";
+
+type RegisterScreenProps = NativeStackScreenProps<
+  AccountStackParamList,
+  "Register"
+>;
+
+export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,10 +29,11 @@ export function RegisterScreen() {
   function handleConfirmPasswordChange() {
     if (password !== confirmPassword) {
       setPasswordError("Password and Confirm Password do not match.");
-      return;
+      return false;
     }
 
     setPasswordError("");
+    return true;
   }
 
   return (
@@ -71,7 +81,14 @@ export function RegisterScreen() {
       </View>
       <TouchableOpacity
         style={styles.primaryButton}
-        onPress={handleConfirmPasswordChange}
+        onPress={() => {
+          if (handleConfirmPasswordChange()) {
+            navigation.navigate("AccountMain");
+            /*api call for registration */
+          } else {
+            Alert.alert("Passwords do not match");
+          }
+        }}
       >
         <Text style={styles.primaryButtonText}>Register</Text>
       </TouchableOpacity>

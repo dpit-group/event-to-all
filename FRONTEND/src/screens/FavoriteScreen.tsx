@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
-import { Alert, FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { EventCard } from "../components/EventCard";
@@ -12,27 +12,20 @@ type FavoriteScreenProps = NativeStackScreenProps<
   "FavoriteMain"
 >;
 
-export function FavoriteScreen({ navigation }: FavoriteScreenProps) {
+export function FavoriteScreen({ navigation, route }: FavoriteScreenProps) {
   const [events, setEvents] = useState(sampleEvents);
 
-  function confirmRemoveFavorite(eventId: number) {
-    Alert.alert(
-      "Remove favorite",
-      "Are you sure you want to remove this event from favorites?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: () => {
-            setEvents((currentEvents) =>
-              currentEvents.filter((event) => event.id !== eventId),
-            );
-          },
-        },
-      ],
+  useEffect(() => {
+    const removedEventId = route.params?.removedEventId;
+    if (removedEventId === undefined) {
+      return;
+    }
+
+    setEvents((currentEvents) =>
+      currentEvents.filter((event) => event.id !== removedEventId),
     );
-  }
+    navigation.setParams({ removedEventId: undefined });
+  }, [navigation, route.params?.removedEventId]);
 
   return (
     <ScrollView style={styles.container}>
@@ -41,18 +34,27 @@ export function FavoriteScreen({ navigation }: FavoriteScreenProps) {
         <Text style={styles.subtitle}>Events you saved for later</Text>
       </View>
       <FlatList
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[
+          styles.list,
+          events.length === 0 && styles.emptyList,
+        ]}
         data={events}
         keyExtractor={(event) => event.id.toString()}
         renderItem={({ item }) => (
           <EventCard
             event={item}
-            onPress={() => navigation.navigate("Event", { event: item })}
-            onRemove={() => confirmRemoveFavorite(item.id)}
+            onPress={() =>
+              navigation.navigate("Event", {
+                event: item,
+                fromFavorites: true,
+              })
+            }
           />
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No favorite events yet.</Text>
+          <Text style={styles.emptyText}>
+            You have not saved any favorite events yet.
+          </Text>
         }
       />
       <StatusBar style="auto" />
@@ -83,6 +85,12 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 18,
+    flexGrow: 1,
+  },
+  emptyList: {
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 300,
   },
   emptyText: {
     color: "#77718a",

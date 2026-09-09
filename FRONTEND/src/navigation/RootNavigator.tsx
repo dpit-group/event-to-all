@@ -12,6 +12,8 @@ import { PRIMARY_COLOR } from "../constant";
 import { FilterScreen } from "../screens/FilterScreen";
 import { MapScreen } from "../screens/MapScreen";
 import { AddEventScreen } from "../screens/AddEventScreen";
+import { EditEventScreen } from "../screens/EditEventScreen";
+import { MyEventScreen } from "../screens/MyEventsScreen";
 import type { Event } from "../screens/EventScreen";
 
 export type RootTabParamList = {
@@ -20,17 +22,25 @@ export type RootTabParamList = {
   Home: undefined;
   Search: undefined;
   Map: undefined;
+  MyEvents: undefined;
 };
 
 export type AccountStackParamList = {
   AccountMain: undefined;
   Register: undefined;
   AddEvent: undefined;
+  EditEvent: { event?: Event } | undefined;
+};
+
+export type MyEventsStackParamList = {
+  MyEventsMain: { removedEventId?: number } | undefined;
+  Event: { event: Event; fromMyEvents?: boolean };
+  EditEvent: { event: Event };
 };
 
 export type FavoriteStackParamList = {
-  FavoriteMain: undefined;
-  Event: { event: Event };
+  FavoriteMain: { removedEventId?: number } | undefined;
+  Event: { event: Event; fromFavorites?: boolean };
 };
 
 export type HomeStackParamList = {
@@ -59,6 +69,7 @@ export type SearchStackParamList = {
         } | null;
       }
     | undefined;
+  Event: { event: Event };
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -66,6 +77,7 @@ const SearchStack = createNativeStackNavigator<SearchStackParamList>();
 const AccountStack = createNativeStackNavigator<AccountStackParamList>();
 const FavoriteStack = createNativeStackNavigator<FavoriteStackParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const MyEventsStack = createNativeStackNavigator<MyEventsStackParamList>();
 
 function SearchStackNavigator() {
   return (
@@ -92,6 +104,11 @@ function SearchStackNavigator() {
           },
         }}
       />
+      <SearchStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
     </SearchStack.Navigator>
   );
 }
@@ -113,6 +130,11 @@ function AccountStackNavigator() {
         name="AddEvent"
         component={AddEventScreen}
         options={{ title: "Add Event" }}
+      />
+      <AccountStack.Screen
+        name="EditEvent"
+        component={EditEventScreen}
+        options={{ title: "Edit Event" }}
       />
     </AccountStack.Navigator>
   );
@@ -149,6 +171,28 @@ function HomeStackNavigator() {
         options={{ title: "Event" }}
       />
     </HomeStack.Navigator>
+  );
+}
+
+function MyEventsStackNavigator() {
+  return (
+    <MyEventsStack.Navigator>
+      <MyEventsStack.Screen
+        name="MyEventsMain"
+        component={MyEventScreen}
+        options={{ headerShown: false }}
+      />
+      <MyEventsStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+      <MyEventsStack.Screen
+        name="EditEvent"
+        component={EditEventScreen}
+        options={{ title: "Edit Event" }}
+      />
+    </MyEventsStack.Navigator>
   );
 }
 
@@ -212,6 +256,16 @@ export function RootNavigator({
           title: "Favorite",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="heart" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="MyEvents"
+        component={MyEventsStackNavigator}
+        options={{
+          title: "My Events",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="briefcase" color={color} size={size} />
           ),
         }}
       />
