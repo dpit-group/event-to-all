@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { AccountScreen } from "../screens/AccountScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
@@ -15,6 +16,7 @@ import { AddEventScreen } from "../screens/AddEventScreen";
 import { EditEventScreen } from "../screens/EditEventScreen";
 import { MyEventScreen } from "../screens/MyEventsScreen";
 import type { Event } from "../screens/EventScreen";
+import { useAuth } from "../context/AuthContext";
 
 export type RootTabParamList = {
   Account: undefined;
@@ -201,6 +203,16 @@ export function RootNavigator({
 }: {
   initialRouteName?: keyof RootTabParamList;
 }) {
+  const { isLoggedIn, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator color={PRIMARY_COLOR} />
+      </View>
+    );
+  }
+
   return (
     <Tab.Navigator
       initialRouteName={initialRouteName}
@@ -249,26 +261,30 @@ export function RootNavigator({
           ),
         }}
       />
-      <Tab.Screen
-        name="Favorite"
-        component={FavoriteStackNavigator}
-        options={{
-          title: "Favorite",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="MyEvents"
-        component={MyEventsStackNavigator}
-        options={{
-          title: "My Events",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="briefcase" color={color} size={size} />
-          ),
-        }}
-      />
+      {isLoggedIn ? (
+        <Tab.Screen
+          name="Favorite"
+          component={FavoriteStackNavigator}
+          options={{
+            title: "Favorite",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="heart" color={color} size={size} />
+            ),
+          }}
+        />
+      ) : null}
+      {isLoggedIn && user?.accountType === "business" ? (
+        <Tab.Screen
+          name="MyEvents"
+          component={MyEventsStackNavigator}
+          options={{
+            title: "My Events",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="briefcase" color={color} size={size} />
+            ),
+          }}
+        />
+      ) : null}
       <Tab.Screen
         name="Account"
         component={AccountStackNavigator}
@@ -282,3 +298,12 @@ export function RootNavigator({
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
+});

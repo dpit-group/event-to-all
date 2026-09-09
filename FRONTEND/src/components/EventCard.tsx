@@ -1,12 +1,14 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { useFavorites } from "../context/FavoritesContext";
 import type { Event } from "../screens/EventScreen";
 
 type EventCardProps = {
   event: Event;
   onPress: () => void;
   onRemove?: () => void;
+  showFavorite?: boolean;
   variant?: "compact" | "featured";
 };
 
@@ -14,9 +16,12 @@ export function EventCard({
   event,
   onPress,
   onRemove,
+  showFavorite = false,
   variant = "compact",
 }: EventCardProps) {
   const isFeatured = variant === "featured";
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(event.id);
 
   return (
     <Pressable
@@ -44,6 +49,28 @@ export function EventCard({
           {event.city} · {event.address}
         </Text>
       </View>
+      {showFavorite ? (
+        <Pressable
+          accessibilityLabel={
+            favorite
+              ? `Remove ${event.name} from favorites`
+              : `Add ${event.name} to favorites`
+          }
+          accessibilityRole="button"
+          hitSlop={8}
+          style={styles.favoriteButton}
+          onPress={(pressEvent) => {
+            pressEvent.stopPropagation();
+            toggleFavorite(event);
+          }}
+        >
+          <Ionicons
+            name={favorite ? "heart" : "heart-outline"}
+            size={24}
+            color={favorite ? "#d62828" : "#6f01ff"}
+          />
+        </Pressable>
+      ) : null}
       {onRemove ? (
         <Pressable
           accessibilityLabel={`Remove ${event.name} from favorites`}
@@ -131,6 +158,15 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     paddingTop: 14,
     paddingRight: 2,
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: 12,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 5,
   },
   chevron: {
     alignSelf: "center",

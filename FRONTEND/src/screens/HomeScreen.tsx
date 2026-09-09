@@ -22,6 +22,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           <EventCard
             event={item}
             variant="featured"
+            showFavorite
             onPress={() => navigation.navigate("Event", { event: item })}
           />
         )}

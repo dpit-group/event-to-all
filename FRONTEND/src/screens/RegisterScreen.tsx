@@ -12,6 +12,7 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AccountStackParamList } from "../navigation/RootNavigator";
+import { useAuth } from "../context/AuthContext";
 
 type RegisterScreenProps = NativeStackScreenProps<
   AccountStackParamList,
@@ -19,6 +20,7 @@ type RegisterScreenProps = NativeStackScreenProps<
 >;
 
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -81,10 +83,13 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
       </View>
       <TouchableOpacity
         style={styles.primaryButton}
-        onPress={() => {
+        onPress={async () => {
           if (handleConfirmPasswordChange()) {
+            await login(
+              username.trim() || name.trim(),
+              isBusinessAccount ? "business" : "personal",
+            );
             navigation.navigate("AccountMain");
-            /*api call for registration */
           } else {
             Alert.alert("Passwords do not match");
           }

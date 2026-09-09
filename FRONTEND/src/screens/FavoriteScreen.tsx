@@ -1,11 +1,11 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { EventCard } from "../components/EventCard";
+import { useFavorites } from "../context/FavoritesContext";
 import type { FavoriteStackParamList } from "../navigation/RootNavigator";
-import { sampleEvents } from "../resources/events";
 
 type FavoriteScreenProps = NativeStackScreenProps<
   FavoriteStackParamList,
@@ -13,7 +13,7 @@ type FavoriteScreenProps = NativeStackScreenProps<
 >;
 
 export function FavoriteScreen({ navigation, route }: FavoriteScreenProps) {
-  const [events, setEvents] = useState(sampleEvents);
+  const { favoriteEvents: events, removeFavorite } = useFavorites();
 
   useEffect(() => {
     const removedEventId = route.params?.removedEventId;
@@ -21,11 +21,9 @@ export function FavoriteScreen({ navigation, route }: FavoriteScreenProps) {
       return;
     }
 
-    setEvents((currentEvents) =>
-      currentEvents.filter((event) => event.id !== removedEventId),
-    );
+    removeFavorite(removedEventId);
     navigation.setParams({ removedEventId: undefined });
-  }, [navigation, route.params?.removedEventId]);
+  }, [navigation, removeFavorite, route.params?.removedEventId]);
 
   return (
     <ScrollView style={styles.container}>

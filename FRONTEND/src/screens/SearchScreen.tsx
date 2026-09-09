@@ -141,6 +141,7 @@ export function SearchScreen() {
         renderItem={({ item }) => (
           <EventCard
             event={item}
+            showFavorite
             onPress={() => navigation.navigate("Event", { event: item })}
           />
         )}

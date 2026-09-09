@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,6 +12,7 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AccountStackParamList } from "../navigation/RootNavigator";
+import { useAuth } from "../context/AuthContext";
 
 type AccountScreenProps = NativeStackScreenProps<
   AccountStackParamList,
@@ -18,23 +20,24 @@ type AccountScreenProps = NativeStackScreenProps<
 >;
 
 export function AccountScreen({ navigation }: AccountScreenProps) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isBusinessAccount, setIsBusinessAccount] = useState(true);
+  const { isLoggedIn, login, logout, user } = useAuth();
+  const [isBusinessAccount, setIsBusinessAccount] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleLogin() {
+  async function handleLogin() {
     if (!username.trim() || !password) {
       return;
     }
 
-    setIsBusinessAccount(true);
-    setIsLoggedIn(true);
+    await login(
+      username.trim(),
+      isBusinessAccount ? "business" : "personal",
+    );
   }
 
-  function handleLogout() {
-    setIsLoggedIn(false);
-    setIsBusinessAccount(false);
+  async function handleLogout() {
+    await logout();
     setUsername("");
     setPassword("");
   }
@@ -44,9 +47,14 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
       {isLoggedIn ? (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.loggedInContainer}>
-            <Text style={styles.username}>Welcome, {username}</Text>
+            <Text style={styles.username}>Welcome, {user?.username}</Text>
+            <Text style={styles.accountType}>
+              {user?.accountType === "business"
+                ? "Business account"
+                : "Personal account"}
+            </Text>
 
-            {isBusinessAccount ? (
+            {user?.accountType === "business" ? (
               <TouchableOpacity
                 style={styles.addEventButton}
                 onPress={() => navigation.navigate("AddEvent")}
@@ -83,6 +91,15 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
             onChangeText={setPassword}
             secureTextEntry
           />
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>
+              {isBusinessAccount ? "Business account" : "Personal account"}
+            </Text>
+            <Switch
+              value={isBusinessAccount}
+              onValueChange={setIsBusinessAccount}
+            />
+          </View>
           <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
             <Text style={styles.primaryButtonText}>Log in</Text>
           </TouchableOpacity>
@@ -162,10 +179,27 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 18,
   },
+  accountType: {
+    color: "#77718a",
+    fontSize: 16,
+    marginTop: -10,
+    marginBottom: 18,
+  },
   loggedInContainer: {
     width: "100%",
     maxWidth: 500,
     alignItems: "center",
+  },
+  toggleRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 8,
+  },
+  toggleLabel: {
+    color: "#20233d",
+    fontSize: 16,
   },
   addEventButton: {
     width: "100%",
