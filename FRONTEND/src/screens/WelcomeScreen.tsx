@@ -12,9 +12,14 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 type WelcomeScreenProps = {
   onContinue: () => void;
   onExplore: () => void;
+  onLogin: () => void;
 };
 
-export function WelcomeScreen({ onContinue, onExplore }: WelcomeScreenProps) {
+export function WelcomeScreen({
+  onContinue,
+  onExplore,
+  onLogin,
+}: WelcomeScreenProps) {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -88,7 +93,7 @@ export function WelcomeScreen({ onContinue, onExplore }: WelcomeScreenProps) {
       {/*BUTON LOG IN*/}
       <TouchableOpacity
         style={styles.loginButton}
-        onPress={() => navigation.navigate("Login")}
+        onPress={onLogin}
       >
         <Text style={styles.secondaryButtonText}>Log In</Text>
       </TouchableOpacity>

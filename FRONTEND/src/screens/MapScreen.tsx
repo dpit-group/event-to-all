@@ -1,12 +1,30 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
-export function MapScreen() {
+export  function MapScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Event map</Text>
-      <Text style={styles.message}>Discover events near you.</Text>
-      <StatusBar style="auto" />
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: 46.7700,
+          longitude: 23.5895,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }}
+        showsUserLocation
+        showsMyLocationButton
+      >
+        <Marker
+          coordinate={{
+            latitude: 46.7700,
+            longitude: 23.5895,
+          }}
+          title="Cluj-Napoca"
+          description="My location"
+        />
+      </MapView>
     </View>
   );
 }
@@ -14,19 +32,8 @@ export function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f6f6f6",
-    padding: 24,
   },
-  title: {
-    color: "#20233d",
-    fontSize: 28,
-    fontWeight: "800",
-    marginBottom: 8,
-  },
-  message: {
-    color: "#666",
-    fontSize: 16,
+  map: {
+    flex: 1,
   },
 });

@@ -11,12 +11,13 @@ import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { PRIMARY_COLOR } from "../constant";
 import { FilterScreen } from "../screens/FilterScreen";
-import { MapScreen } from "../screens/MapScreen";
 import { AddEventScreen } from "../screens/AddEventScreen";
 import { EditEventScreen } from "../screens/EditEventScreen";
 import { MyEventScreen } from "../screens/MyEventsScreen";
 import type { Event } from "../screens/EventScreen";
 import { useAuth } from "../context/AuthContext";
+
+import  { MapScreen }  from "../screens/MapScreen";
 
 export type RootTabParamList = {
   Account: undefined;

@@ -15,7 +15,9 @@ import { FavoritesProvider } from "./src/context/FavoritesContext";
 
 export default function App() {
   const [showWelcome, setShowWelcome] = useState(true);
-  const [initialTab, setInitialTab] = useState<"Home" | "Map">("Home");
+  const [initialTab, setInitialTab] = useState<"Home" | "Map" | "Account">(
+    "Home",
+  );
 
   return (
     <SafeAreaProvider>
@@ -32,6 +34,10 @@ export default function App() {
               setInitialTab("Map");
               setShowWelcome(false);
             }}
+            onLogin={() => {
+              setInitialTab("Account");
+              setShowWelcome(false);
+            }}
           />
         </FavoritesProvider>
       </AuthProvider>
@@ -45,16 +51,22 @@ function AppContent({
   initialTab,
   onContinue,
   onExplore,
+  onLogin,
 }: {
   showWelcome: boolean;
-  initialTab: "Home" | "Map";
+  initialTab: "Home" | "Map" | "Account";
   onContinue: () => void;
   onExplore: () => void;
+  onLogin: () => void;
 }) {
   const insets = useSafeAreaInsets();
 
   return showWelcome ? (
-    <WelcomeScreen onContinue={onContinue} onExplore={onExplore} />
+    <WelcomeScreen
+      onContinue={onContinue}
+      onExplore={onExplore}
+      onLogin={onLogin}
+    />
   ) : (
     <View style={styles.appContainer}>
       <View

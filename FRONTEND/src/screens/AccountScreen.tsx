@@ -47,29 +47,33 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
       {isLoggedIn ? (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.loggedInContainer}>
-            <Text style={styles.username}>Welcome, {user?.username}</Text>
-            <Text style={styles.accountType}>
-              {user?.accountType === "business"
-                ? "Business account"
-                : "Personal account"}
-            </Text>
+            <View style={styles.accountHeader}>
+              <Text style={styles.username}>Welcome, {user?.username}</Text>
+              <Text style={styles.accountType}>
+                {user?.accountType === "business"
+                  ? "Business account"
+                  : "Personal account"}
+              </Text>
+            </View>
 
-            {user?.accountType === "business" ? (
-              <TouchableOpacity
-                style={styles.addEventButton}
-                onPress={() => navigation.navigate("AddEvent")}
-              >
-                <Text style={styles.addEventButtonText}>Add Event</Text>
-              </TouchableOpacity>
-            ) : null}
+            <View style={styles.accountActions}>
+              {user?.accountType === "business" ? (
+                <TouchableOpacity
+                  style={styles.addEventButton}
+                  onPress={() => navigation.navigate("AddEvent")}
+                >
+                  <Text style={styles.addEventButtonText}>Add Event</Text>
+                </TouchableOpacity>
+              ) : null}
 
-            <View style={styles.footerActions}>
-              <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={handleLogout}
-              >
-                <Text style={styles.logoutButtonText}>Log out</Text>
-              </TouchableOpacity>
+              <View style={styles.footerActions}>
+                <TouchableOpacity
+                  style={styles.logoutButton}
+                  onPress={handleLogout}
+                >
+                  <Text style={styles.logoutButtonText}>Log out</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    padding: 50,
+    paddingHorizontal: 20,
   },
   scrollContent: {
     flexGrow: 1,
@@ -174,9 +178,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   username: {
+    width: "100%",
     color: "#20233d",
     fontSize: 24,
     fontWeight: "700",
+    textAlign: "center",
     marginBottom: 18,
   },
   accountType: {
@@ -190,8 +196,19 @@ const styles = StyleSheet.create({
     maxWidth: 500,
     alignItems: "center",
   },
+  accountHeader: {
+    width: "100%",
+    maxWidth: 400,
+    alignItems: "center",
+  },
+  accountActions: {
+    width: "100%",
+    maxWidth: 400,
+    alignItems: "center",
+  },
   toggleRow: {
     width: "100%",
+    maxWidth: 400,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -203,6 +220,8 @@ const styles = StyleSheet.create({
   },
   addEventButton: {
     width: "100%",
+    maxWidth: 400,
+    alignSelf: "center",
     backgroundColor: "#6f01ff",
     borderRadius: 6,
     borderWidth: 1,
@@ -218,11 +237,14 @@ const styles = StyleSheet.create({
   },
   footerActions: {
     width: "100%",
+    alignItems: "center",
     marginTop: "auto",
     paddingTop: 28,
   },
   logoutButton: {
     width: "100%",
+    maxWidth: 400,
+    alignSelf: "center",
     borderWidth: 1,
     borderColor: "#6f01ff",
     borderRadius: 6,

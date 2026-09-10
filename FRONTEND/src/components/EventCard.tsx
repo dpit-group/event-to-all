@@ -1,6 +1,14 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
+import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
 import type { Event } from "../screens/EventScreen";
 
@@ -20,6 +28,7 @@ export function EventCard({
   variant = "compact",
 }: EventCardProps) {
   const isFeatured = variant === "featured";
+  const { isLoggedIn, isLoading } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = isFavorite(event.id);
 
@@ -61,6 +70,15 @@ export function EventCard({
           style={styles.favoriteButton}
           onPress={(pressEvent) => {
             pressEvent.stopPropagation();
+
+            if (!isLoading && !isLoggedIn && !favorite) {
+              Alert.alert(
+                "Login required",
+                "You must be logged in to add events to favorites.",
+              );
+              return;
+            }
+
             toggleFavorite(event);
           }}
         >
