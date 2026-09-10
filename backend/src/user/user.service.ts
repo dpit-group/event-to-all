@@ -9,7 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserRepository } from './user.repository';
-import { User } from './entities/user.entity';
+import { mapUserToResponse } from './mappers/user.mapper';
 
 const scrypt = promisify(scryptCallback);
 
@@ -34,7 +34,7 @@ export class UserService {
       password: await this.hashPassword(createUserDto.password),
     });
 
-    return this.toResponse(user);
+    return mapUserToResponse(user);
   }
 
   async login(loginUserDto: LoginUserDto): Promise<UserResponseDto> {
@@ -46,7 +46,7 @@ export class UserService {
       throw new UnauthorizedException('Invalid username/email or password');
     }
 
-    return this.toResponse(user);
+    return mapUserToResponse(user);
   }
 
   private async hashPassword(password: string): Promise<string> {
@@ -69,8 +69,4 @@ export class UserService {
     );
   }
 
-  private toResponse(user: User): UserResponseDto {
-    const { password: _password, ...response } = user;
-    return response;
-  }
 }

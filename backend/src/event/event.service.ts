@@ -32,13 +32,10 @@ export class EventService {
  
     const savedEvent = await this.eventRepository.createEvent(event); 
  
-    this.eventRepository.Events.push(savedEvent); 
- 
     return savedEvent; 
   } 
   async findAll(): Promise<EventResponseDto[]> {
     const events = await this.eventRepository.findAllEvents();
-    this.eventRepository.Events = events;
     return events;
   } 
  
@@ -63,9 +60,6 @@ export class EventService {
     if (!event) {
       throw new NotFoundException('Event not found');
     }
-    this.eventRepository.Events = this.eventRepository.Events.map(item =>
-      item.id === event.id ? event : item,
-    );
     return event;
   } 
  
@@ -75,9 +69,6 @@ export class EventService {
       throw new NotFoundException('Event not found');
     }
 
-    this.eventRepository.Events = this.eventRepository.Events.filter(
-      event => event.id !== Number(id),
-    );
     return "Event deleted successfully " + id;
   }
 
