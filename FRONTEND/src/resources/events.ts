@@ -29,4 +29,32 @@ export const sampleEvents: Event[] = [
     imageUrl:
       "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=900&q=80",
   },
+  {
+    id: 3,
+    name: "Neon Harbor",
+    city: "Timisoara",
+    address: "Bulevardul Mihai Viteazu 22",
+    lat: 45.7489,
+    lng: 21.2087,
+    date: "6 November 2026",
+    time: "21:15",
+    minAge: 18,
+    artist: "Velvet Reign",
+    imageUrl:
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 4,
+    name: "Sunset Parade",
+    city: "Iasi",
+    address: "Piata Unirii 14",
+    lat: 47.1585,
+    lng: 27.6014,
+    date: "18 November 2026",
+    time: "18:45",
+    minAge: 14,
+    artist: "Coastal Bloom",
+    imageUrl:
+      "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80",
+  },
 ];

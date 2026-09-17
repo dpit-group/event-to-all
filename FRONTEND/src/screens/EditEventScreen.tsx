@@ -14,8 +14,11 @@ import { StatusBar } from "expo-status-bar";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import type { AccountStackParamList } from "../navigation/RootNavigator";
-import type { MyEventsStackParamList } from "../navigation/RootNavigator";
+
+import type {
+  AccountStackParamList,
+  MyEventsStackParamList,
+} from "../navigation/RootNavigator";
 import type { Event } from "./EventScreen";
 
 type EditEventProps =

@@ -11,13 +11,7 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { EventCard } from "../components/EventCard";
 import { sampleEvents } from "../resources/events";
-type AppliedFilters = {
-  startDate: string | null;
-  endDate: string | null;
-  distance: number;
-  types: string[];
-  ageLimit?: string;
-};
+import type { AppliedFilters } from "../dto/AppliedFilters";
 
 export function SearchScreen() {
   const [searchText, setSearchText] = useState("");

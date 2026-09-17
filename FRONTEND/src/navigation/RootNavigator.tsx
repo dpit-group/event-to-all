@@ -17,7 +17,7 @@ import { MyEventScreen } from "../screens/MyEventsScreen";
 import type { Event } from "../screens/EventScreen";
 import { useAuth } from "../context/AuthContext";
 
-import  { MapScreen }  from "../screens/MapScreen";
+import { MapScreen } from "../screens/MapScreen";
 
 export type RootTabParamList = {
   Account: undefined;
@@ -26,6 +26,11 @@ export type RootTabParamList = {
   Search: undefined;
   Map: undefined;
   MyEvents: undefined;
+};
+
+export type MapStackParamList = {
+  MapMain: undefined;
+  Event: { event: Event };
 };
 
 export type AccountStackParamList = {
@@ -80,6 +85,7 @@ const SearchStack = createNativeStackNavigator<SearchStackParamList>();
 const AccountStack = createNativeStackNavigator<AccountStackParamList>();
 const FavoriteStack = createNativeStackNavigator<FavoriteStackParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const MapStack = createNativeStackNavigator<MapStackParamList>();
 const MyEventsStack = createNativeStackNavigator<MyEventsStackParamList>();
 
 function SearchStackNavigator() {
@@ -177,6 +183,23 @@ function HomeStackNavigator() {
   );
 }
 
+function MapStackNavigator() {
+  return (
+    <MapStack.Navigator>
+      <MapStack.Screen
+        name="MapMain"
+        component={MapScreen}
+        options={{ headerShown: false }}
+      />
+      <MapStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+    </MapStack.Navigator>
+  );
+}
+
 function MyEventsStackNavigator() {
   return (
     <MyEventsStack.Navigator>
@@ -254,7 +277,7 @@ export function RootNavigator({
       />
       <Tab.Screen
         name="Map"
-        component={MapScreen}
+        component={MapStackNavigator}
         options={{
           title: "Map",
           tabBarIcon: ({ color, size }) => (
