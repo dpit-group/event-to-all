@@ -1,13 +1,23 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { AccountScreen } from "../screens/AccountScreen";
+import { RegisterScreen } from "../screens/RegisterScreen";
 import { FavoriteScreen } from "../screens/FavoriteScreen";
+import { EventScreen } from "../screens/EventScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { PRIMARY_COLOR } from "../constant";
 import { FilterScreen } from "../screens/FilterScreen";
+import { AddEventScreen } from "../screens/AddEventScreen";
+import { EditEventScreen } from "../screens/EditEventScreen";
+import { MyEventScreen } from "../screens/MyEventsScreen";
+import type { Event } from "../screens/EventScreen";
+import { useAuth } from "../context/AuthContext";
+
+import { MapScreen } from "../screens/MapScreen";
 
 export type RootTabParamList = {
   Account: undefined;
@@ -15,6 +25,35 @@ export type RootTabParamList = {
   Home: undefined;
   Search: undefined;
   Map: undefined;
+  MyEvents: undefined;
+};
+
+export type MapStackParamList = {
+  MapMain: undefined;
+  Event: { event: Event };
+};
+
+export type AccountStackParamList = {
+  AccountMain: undefined;
+  Register: undefined;
+  AddEvent: undefined;
+  EditEvent: { event?: Event } | undefined;
+};
+
+export type MyEventsStackParamList = {
+  MyEventsMain: { removedEventId?: number } | undefined;
+  Event: { event: Event; fromMyEvents?: boolean };
+  EditEvent: { event: Event };
+};
+
+export type FavoriteStackParamList = {
+  FavoriteMain: { removedEventId?: number } | undefined;
+  Event: { event: Event; fromFavorites?: boolean };
+};
+
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Event: { event: Event };
 };
 
 export type SearchStackParamList = {
@@ -38,10 +77,16 @@ export type SearchStackParamList = {
         } | null;
       }
     | undefined;
+  Event: { event: Event };
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
+const AccountStack = createNativeStackNavigator<AccountStackParamList>();
+const FavoriteStack = createNativeStackNavigator<FavoriteStackParamList>();
+const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const MapStack = createNativeStackNavigator<MapStackParamList>();
+const MyEventsStack = createNativeStackNavigator<MyEventsStackParamList>();
 
 function SearchStackNavigator() {
   return (
@@ -68,13 +113,133 @@ function SearchStackNavigator() {
           },
         }}
       />
+      <SearchStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
     </SearchStack.Navigator>
   );
 }
 
-export function RootNavigator() {
+function AccountStackNavigator() {
+  return (
+    <AccountStack.Navigator>
+      <AccountStack.Screen
+        name="AccountMain"
+        component={AccountScreen}
+        options={{ headerShown: false }}
+      />
+      <AccountStack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{ title: "Register" }}
+      />
+      <AccountStack.Screen
+        name="AddEvent"
+        component={AddEventScreen}
+        options={{ title: "Add Event" }}
+      />
+      <AccountStack.Screen
+        name="EditEvent"
+        component={EditEventScreen}
+        options={{ title: "Edit Event" }}
+      />
+    </AccountStack.Navigator>
+  );
+}
+
+function FavoriteStackNavigator() {
+  return (
+    <FavoriteStack.Navigator>
+      <FavoriteStack.Screen
+        name="FavoriteMain"
+        component={FavoriteScreen}
+        options={{ headerShown: false }}
+      />
+      <FavoriteStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+    </FavoriteStack.Navigator>
+  );
+}
+
+function HomeStackNavigator() {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="HomeMain"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+    </HomeStack.Navigator>
+  );
+}
+
+function MapStackNavigator() {
+  return (
+    <MapStack.Navigator>
+      <MapStack.Screen
+        name="MapMain"
+        component={MapScreen}
+        options={{ headerShown: false }}
+      />
+      <MapStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+    </MapStack.Navigator>
+  );
+}
+
+function MyEventsStackNavigator() {
+  return (
+    <MyEventsStack.Navigator>
+      <MyEventsStack.Screen
+        name="MyEventsMain"
+        component={MyEventScreen}
+        options={{ headerShown: false }}
+      />
+      <MyEventsStack.Screen
+        name="Event"
+        component={EventScreen}
+        options={{ title: "Event" }}
+      />
+      <MyEventsStack.Screen
+        name="EditEvent"
+        component={EditEventScreen}
+        options={{ title: "Edit Event" }}
+      />
+    </MyEventsStack.Navigator>
+  );
+}
+
+export function RootNavigator({
+  initialRouteName = "Home",
+}: {
+  initialRouteName?: keyof RootTabParamList;
+}) {
+  const { isLoggedIn, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator color={PRIMARY_COLOR} />
+      </View>
+    );
+  }
+
   return (
     <Tab.Navigator
+      initialRouteName={initialRouteName}
       screenOptions={{
         headerShown: false,
         headerStyle: {
@@ -92,7 +257,7 @@ export function RootNavigator() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeStackNavigator}
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => (
@@ -110,20 +275,43 @@ export function RootNavigator() {
           ),
         }}
       />
-
       <Tab.Screen
-        name="Favorite"
-        component={FavoriteScreen}
+        name="Map"
+        component={MapStackNavigator}
         options={{
-          title: "Favorite",
+          title: "Map",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" color={color} size={size} />
+            <Ionicons name="map" color={color} size={size} />
           ),
         }}
       />
+      {isLoggedIn ? (
+        <Tab.Screen
+          name="Favorite"
+          component={FavoriteStackNavigator}
+          options={{
+            title: "Favorite",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="heart" color={color} size={size} />
+            ),
+          }}
+        />
+      ) : null}
+      {isLoggedIn && user?.accountType === "business" ? (
+        <Tab.Screen
+          name="MyEvents"
+          component={MyEventsStackNavigator}
+          options={{
+            title: "My Events",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="briefcase" color={color} size={size} />
+            ),
+          }}
+        />
+      ) : null}
       <Tab.Screen
         name="Account"
-        component={AccountScreen}
+        component={AccountStackNavigator}
         options={{
           title: "Account",
           tabBarIcon: ({ color, size }) => (
@@ -134,3 +322,12 @@ export function RootNavigator() {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
+});
