@@ -32,6 +32,6 @@ export class User extends Model {
   @Column
   declare password: string;
 
-  @Column({ field: 'bussiness', type: DataType.INTEGER })
+  @Column({ field: 'business', type: DataType.INTEGER })
   declare isBusinessAccount: boolean;
 }

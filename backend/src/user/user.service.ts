@@ -18,17 +18,15 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async register(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    const existingUser = await this.userRepository.findByUsernameOrEmail(
-      createUserDto.username,
-    );
-    const existingEmail = await this.userRepository.findByUsernameOrEmail(
+    const existingEmail = await this.userRepository.findByEmail(
       createUserDto.email,
     );
 
-    if (existingUser || existingEmail) {
-      throw new ConflictException('Username or email is already registered');
+    if (existingEmail) {
+      throw new ConflictException('Email is already registered');
     }
 
+    console.log('Creating user with email:', createUserDto);
     const user = await this.userRepository.createUser({
       ...createUserDto,
       password: await this.hashPassword(createUserDto.password),
@@ -38,12 +36,13 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<UserResponseDto> {
-    const user = await this.userRepository.findByUsernameOrEmail(
-      loginUserDto.usernameOrEmail,
-    );
+    const user = await this.userRepository.findByEmail(loginUserDto.email);
 
-    if (!user || !(await this.passwordMatches(loginUserDto.password, user.password))) {
-      throw new UnauthorizedException('Invalid username/email or password');
+    if (
+      !user ||
+      !(await this.passwordMatches(loginUserDto.password, user.password))
+    ) {
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     return mapUserToResponse(user);
@@ -55,7 +54,10 @@ export class UserService {
     return `${salt}:${derivedKey.toString('hex')}`;
   }
 
-  private async passwordMatches(password: string, storedPassword: string): Promise<boolean> {
+  private async passwordMatches(
+    password: string,
+    storedPassword: string,
+  ): Promise<boolean> {
     const [salt, storedKey] = storedPassword.split(':');
     if (!salt || !storedKey) {
       return false;
@@ -68,5 +70,4 @@ export class UserService {
       timingSafeEqual(storedKeyBuffer, derivedKey)
     );
   }
-
 }

@@ -16,6 +16,6 @@ export function mapCreateUserDtoToEntity(
 }
 
 export function mapUserToResponse(user: User): UserResponseDto {
-  const { password: _password, ...response } = user;
+  const { password: _password, ...response } = user.toJSON();
   return response;
 }

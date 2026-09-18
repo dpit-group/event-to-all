@@ -6,7 +6,8 @@ export class CreateUserDto {
   phoneNumber!: string;
   email!: string;
   @Matches(/^(?=.*\d)(?=.*[A-Z]).+$/, {
-    message: 'Password must contain at least one digit and one uppercase letter',
+    message:
+      'Password must contain at least one digit and one uppercase letter',
   })
   password!: string;
   isBusinessAccount!: boolean;

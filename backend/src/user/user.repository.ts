@@ -12,21 +12,22 @@ export class UserRepository {
     private readonly userModel: typeof User,
   ) {}
 
-
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const user = mapCreateUserDtoToEntity(createUserDto);
 
     return user.save();
   }
 
-  findByUsernameOrEmail(usernameOrEmail: string): Promise<User | null> {
-    return this.userModel.findOne({
-      where: {
-        [Op.or]: [
-          { username: usernameOrEmail },
-          { email: usernameOrEmail },
-        ],
-      },
-    });
+  findByEmail(email: string): Promise<User | null> {
+    return this.userModel
+      .findOne({
+        where: {
+          email: email,
+        },
+      })
+      .catch((error) => {
+        console.log('User not found email:');
+        return null;
+      });
   }
 }
