@@ -1,6 +1,9 @@
+import { EventType } from '../../filter/filter';
+
 export interface Event {
     id: number;
     name: string;
+    type: EventType;
     city: string;
     address: string;
     lat: number;

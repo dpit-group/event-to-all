@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { Event } from './entities/event.entity';
+import { EventType } from '../filter/filter';
 
 @Injectable()
 export class EventRepository {
@@ -8,6 +9,7 @@ export class EventRepository {
      {
         id: 1,
         name: 'Summer Music Festival',
+        type: EventType.Festivals,
         city: 'Bucharest',
         address: 'Arena Națională, Strada Maior Coravu 2',
         lat: 44.439663,
@@ -20,6 +22,7 @@ export class EventRepository {
     {
         id: 2,
         name: 'Tech Conference 2026',
+        type: EventType.ProductLaunch,
         city: 'Cluj-Napoca',
         address: 'BT Arena, Strada Uzinei Electrice',
         lat: 46.7671,
@@ -32,6 +35,7 @@ export class EventRepository {
     {
         id: 3,
         name: 'Jazz in the Park',
+        type: EventType.Cultural,
         city: 'Cluj-Napoca',
         address: 'Central Park',
         lat: 46.7712,
@@ -44,6 +48,7 @@ export class EventRepository {
     {
         id: 4,
         name: 'Rock Night',
+        type: EventType.Concerts,
         city: 'Timișoara',
         address: 'Iulius Congress Hall',
         lat: 45.7418,
@@ -56,6 +61,7 @@ export class EventRepository {
     {
         id: 5,
         name: 'Food & Wine Festival',
+        type: EventType.Festivals,
         city: 'Brașov',
         address: 'Piața Sfatului',
         lat: 45.6580,

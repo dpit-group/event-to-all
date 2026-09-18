@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { randomUUID } from 'crypto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { EventRepository } from './event.repository';
 import { Event } from './entities/event.entity';
+import { filterEvents, Filter } from '../filter/filter';
 
 @Injectable()
 export class EventService {
@@ -16,6 +17,7 @@ export class EventService {
     const event: Event = {       
       id: Math.floor(Math.random() * 1000), 
       name: createEventDto.name,
+      type: createEventDto.type,
       city: createEventDto.city,
       address: createEventDto.address,
       lat: createEventDto.lat,
@@ -28,34 +30,35 @@ export class EventService {
     this.eventRepository.Events.push(event);
     return event;
   }
-
-  findAll() {
+   findAll() {
     return this.eventRepository.Events;
   }
-
-  findOne(id: string): EventResponseDto {
-    const event = this.eventRepository.Events.find(event => event.id === Number(id));
+  findEventbyFilters(filters: Filter[]) {
+    return filterEvents(this.eventRepository.Events, filters);
+  }
+  findOne(id: number): EventResponseDto {
+    const event = this.eventRepository.Events.find(event => event.id === id);
     if (!event) {
-      throw new Error(`Event not found`);
+      throw new NotFoundException(`Event with id ${id} not found`);
     }
     return event;
   }
 
-  update(id: string, updateEventDto: UpdateEventDto) {
-    const event = this.eventRepository.Events.find(event => event.id === Number(id));
+  update(id: number, updateEventDto: UpdateEventDto) {
+    const event = this.eventRepository.Events.find(event => event.id === id);
     if (!event) {
-      throw new Error(`Event not found`);
+      throw new NotFoundException(`Event with id ${id} not found`);
     }
     Object.assign(event, updateEventDto);
     return event;
   }
 
-  remove(id: string): string {
-    const event = this.eventRepository.Events.find(event => event.id === Number(id));
+  remove(id: number): string {
+    const event = this.eventRepository.Events.find(event => event.id === id);
     if (!event) {
-      throw new Error(`Event not found`);
+      throw new NotFoundException(`Event with id ${id} not found`);
     }
-    this.eventRepository.Events = this.eventRepository.Events.filter(e => e.id !== Number(id));
+    this.eventRepository.Events = this.eventRepository.Events.filter(e => e.id !== id);
     return "Event removed successfully " + id;
   }
 }
