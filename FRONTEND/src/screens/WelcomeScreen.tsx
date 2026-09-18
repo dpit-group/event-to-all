@@ -11,9 +11,15 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 
 type WelcomeScreenProps = {
   onContinue: () => void;
+  onExplore: () => void;
+  onLogin: () => void;
 };
 
-export function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
+export function WelcomeScreen({
+  onContinue,
+  onExplore,
+  onLogin,
+}: WelcomeScreenProps) {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -45,110 +51,52 @@ export function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
       {/* FEATURES */}
       <View style={styles.features}>
         <View style={styles.featureRow}>
-          <Ionicons
-            name="location-outline"
-            size={25}
-            color="#6d28d9"
-          />
-          <Text style={styles.featureText}>
-            Evenimente aproape de tine
-          </Text>
+          <Ionicons name="location-outline" size={25} color="#6d28d9" />
+          <Text style={styles.featureText}>Evenimente aproape de tine</Text>
         </View>
 
         <View style={styles.featureRow}>
-          <Ionicons
-            name="filter-outline"
-            size={25}
-            color="#6d28d9"
-          />
-          <Text style={styles.featureText}>
-            Filtre inteligente
-          </Text>
+          <Ionicons name="filter-outline" size={25} color="#6d28d9" />
+          <Text style={styles.featureText}>Filtre inteligente</Text>
         </View>
 
         <View style={styles.featureRow}>
-          <Ionicons
-            name="pricetag-outline"
-            size={25}
-            color="#6d28d9"
-          />
-          <Text style={styles.featureText}>
-            Oferte și reduceri exclusive
-          </Text>
+          <Ionicons name="pricetag-outline" size={25} color="#6d28d9" />
+          <Text style={styles.featureText}>Oferte și reduceri exclusive</Text>
         </View>
 
         <View style={styles.featureRow}>
-          <Ionicons
-            name="heart-outline"
-            size={25}
-            color="#6d28d9"
-          />
-          <Text style={styles.featureText}>
-            Favorite & remindere
-          </Text>
+          <Ionicons name="heart-outline" size={25} color="#6d28d9" />
+          <Text style={styles.featureText}>Favorite & remindere</Text>
         </View>
 
         <View style={styles.featureRow}>
-          <Ionicons
-            name="star-outline"
-            size={25}
-            color="#6d28d9"
-          />
-          <Text style={styles.featureText}>
-            Recenzii și recomandări
-          </Text>
+          <Ionicons name="star-outline" size={25} color="#6d28d9" />
+          <Text style={styles.featureText}>Recenzii și recomandări</Text>
         </View>
 
         <View style={styles.featureRow}>
-          <Ionicons
-            name="share-social-outline"
-            size={25}
-            color="#6d28d9"
-          />
-          <Text style={styles.featureText}>
-            Partajare cu prietenii
-          </Text>
+          <Ionicons name="share-social-outline" size={25} color="#6d28d9" />
+          <Text style={styles.featureText}>Partajare cu prietenii</Text>
         </View>
       </View>
 
       {/* BUTON EXPLOREAZĂ */}
-      <TouchableOpacity
-        style={styles.primaryButton}
-      >
-        <Text style={styles.primaryButtonText}>
-          Explorează Evenimentele
-        </Text>
+      <TouchableOpacity style={styles.primaryButton} onPress={onExplore}>
+        <Text style={styles.primaryButtonText}>Explorează Evenimentele</Text>
       </TouchableOpacity>
 
       {/* CONTINUĂ CA GUEST */}
-      <TouchableOpacity
-        style={styles.secondaryButton}
-        onPress={onContinue}
-      >
-        <Text style={styles.secondaryButtonText}>
-          Continuă ca Guest
-        </Text>
+      <TouchableOpacity style={styles.secondaryButton} onPress={onContinue}>
+        <Text style={styles.secondaryButtonText}>Continuă ca Guest</Text>
       </TouchableOpacity>
-
-      {/* LIMBA */}
-      <View style={styles.bottomRow}>
-        <TouchableOpacity style={styles.languageButton}>
-          <Ionicons
-            name="globe-outline"
-            size={20}
-            color="#333"
-          />
-
-          <Text style={styles.languageText}>RO</Text>
-
-          <Ionicons
-            name="chevron-down-outline"
-            size={16}
-            color="#333"
-          />
-        </TouchableOpacity>
-      </View>
-
+      {/*BUTON LOG IN*/}
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={onLogin}
+      >
+        <Text style={styles.secondaryButtonText}>Log In</Text>
+      </TouchableOpacity>
       <StatusBar style="auto" />
     </ScrollView>
   );
@@ -255,6 +203,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  loginButton: {
+    width: "100%",
+    maxWidth: 420,
+    height: 55,
+    backgroundColor: "#fff",
+    borderWidth: 2,
+    borderColor: "#7c3aed",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
   },
 
   secondaryButtonText: {
