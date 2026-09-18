@@ -19,15 +19,10 @@ export class UserRepository {
   }
 
   findByEmail(email: string): Promise<User | null> {
-    return this.userModel
-      .findOne({
-        where: {
-          email: email,
-        },
-      })
-      .catch((error) => {
-        console.log('User not found email:');
-        return null;
-      });
+    return this.userModel.findOne({
+      where: {
+        email: email,
+      },
+    });
   }
 }
