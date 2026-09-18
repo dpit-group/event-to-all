@@ -55,7 +55,7 @@ export function filterEvents(events: Event[], filters: Filter[]): Event[] {
           return event.city.toLowerCase() === filter.value.toLowerCase();
         case "type":
           return (
-            (event as Event & { type?: string }).type?.toLowerCase() ===
+            event.type?.toLowerCase() ===
             filter.value.toLowerCase()
           );
         case "minAge":
