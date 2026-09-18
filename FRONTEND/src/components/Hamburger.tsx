@@ -10,7 +10,6 @@ export function HamburgerMenu() {
       <Pressable onPress={() => setIsOpen(!isOpen)} style={styles.menuButton}>
         <Ionicons name={isOpen ? "close" : "menu"} size={28} color="black" />
       </Pressable>
-
       {isOpen && (
         <View style={styles.dropdown}>
           <Pressable style={styles.menuItem}>

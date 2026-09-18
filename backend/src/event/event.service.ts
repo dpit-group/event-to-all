@@ -5,60 +5,74 @@ import { randomUUID } from 'crypto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { EventRepository } from './event.repository';
 import { Event } from './entities/event.entity';
-import { filterEvents, Filter } from '../filter/filter';
 
 @Injectable()
 export class EventService {
-  constructor(
-    private readonly eventRepository: EventRepository
-  ) {
-  }
-  create(createEventDto: CreateEventDto) {
-    const event: Event = {       
-      id: Math.floor(Math.random() * 1000), 
+  constructor(private readonly eventRepository: EventRepository) {}
+
+  async create(createEventDto: CreateEventDto) {
+    const event: Omit<Event, 'id'> = {
       name: createEventDto.name,
-      type: createEventDto.type,
       city: createEventDto.city,
       address: createEventDto.address,
       lat: createEventDto.lat,
       lng: createEventDto.lng,
-      startDate: createEventDto.startDate,
-      endDate: createEventDto.endDate,
+      startDate: new Date(createEventDto.startDate),
+      endDate: createEventDto.endDate
+        ? new Date(createEventDto.endDate)
+        : undefined,
       minAge: createEventDto.minAge,
       artist: createEventDto.artist,
-    }
-    this.eventRepository.Events.push(event);
-    return event;
+      background: createEventDto.background,
+      icon: createEventDto.icon,
+    };
+
+    const savedEvent = await this.eventRepository.createEvent(event);
+
+    return savedEvent;
   }
-   findAll() {
-    return this.eventRepository.Events;
+  async findAll(): Promise<EventResponseDto[]> {
+    const events = await this.eventRepository.findAllEvents();
+    return events;
   }
-  findEventbyFilters(filters: Filter[]) {
-    return filterEvents(this.eventRepository.Events, filters);
-  }
-  findOne(id: number): EventResponseDto {
-    const event = this.eventRepository.Events.find(event => event.id === id);
+
+  async findOne(id: string): Promise<EventResponseDto> {
+    const event = await this.eventRepository.findEventById(Number(id));
     if (!event) {
-      throw new NotFoundException(`Event with id ${id} not found`);
+      throw new NotFoundException('Event not found');
     }
     return event;
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    const event = this.eventRepository.Events.find(event => event.id === id);
+  async update(
+    id: string,
+    updateEventDto: UpdateEventDto,
+  ): Promise<EventResponseDto> {
+    const event = await this.eventRepository.updateEvent(Number(id), {
+      ...updateEventDto,
+      startDate: updateEventDto.startDate
+        ? new Date(updateEventDto.startDate)
+        : undefined,
+      endDate: updateEventDto.endDate
+        ? new Date(updateEventDto.endDate)
+        : undefined,
+    });
     if (!event) {
-      throw new NotFoundException(`Event with id ${id} not found`);
+      throw new NotFoundException('Event not found');
     }
-    Object.assign(event, updateEventDto);
     return event;
   }
 
-  remove(id: number): string {
-    const event = this.eventRepository.Events.find(event => event.id === id);
-    if (!event) {
-      throw new NotFoundException(`Event with id ${id} not found`);
+  async deleteEvent(id: string): Promise<string> {
+    const deleted = await this.eventRepository.deleteEvent(Number(id));
+    if (!deleted) {
+      throw new NotFoundException('Event not found');
     }
-    this.eventRepository.Events = this.eventRepository.Events.filter(e => e.id !== id);
-    return "Event removed successfully " + id;
+
+    return 'Event deleted successfully ' + id;
+  }
+
+  remove(id: string): Promise<string> {
+    return this.deleteEvent(id);
   }
 }

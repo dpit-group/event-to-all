@@ -7,7 +7,7 @@ describe('EventService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EventService],
+      providers: [EventService, EventRepository],
     }).compile();
 
     service = module.get<EventService>(EventService);

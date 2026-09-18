@@ -23,8 +23,10 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto): EventResponseDto {
-    return this.eventService.create(createEventDto);
+  async create(
+    @Body() createEventDto: CreateEventDto,
+  ): Promise<EventResponseDto> {
+    return await this.eventService.create(createEventDto);
   }
 
   @Post('filters')
@@ -94,20 +96,20 @@ export class EventController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): EventResponseDto {
+  findOne(@Param('id') id: string): EventResponseDto {
     return this.eventService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
   ): EventResponseDto {
     return this.eventService.update(id, updateEventDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): string {
+  async remove(@Param('id') id: string): Promise<string> {
     return this.eventService.remove(id);
   }
 }
