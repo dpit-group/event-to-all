@@ -5,7 +5,6 @@ import { join } from 'path';
 
 @Injectable()
 export class EventRepository {
-
   private db = new sqlite3.Database(
     join(process.cwd(), 'resources/database/event-to-all.db'),
   );
@@ -56,7 +55,11 @@ export class EventRepository {
           return;
         }
 
-        resolve((rows as Array<Record<string, unknown>>).map(row => this.mapRow(row)));
+        resolve(
+          (rows as Array<Record<string, unknown>>).map((row) =>
+            this.mapRow(row),
+          ),
+        );
       });
     });
   }
@@ -74,18 +77,24 @@ export class EventRepository {
     });
   }
 
-  updateEvent(id: number, event: Partial<Omit<Event, 'id'>>): Promise<Event | undefined> {
+  updateEvent(
+    id: number,
+    event: Partial<Omit<Event, 'id'>>,
+  ): Promise<Event | undefined> {
     const fields: Array<[string, unknown]> = [];
     if (event.name !== undefined) fields.push(['name', event.name]);
     if (event.city !== undefined) fields.push(['city', event.city]);
     if (event.address !== undefined) fields.push(['address', event.address]);
     if (event.lat !== undefined) fields.push(['lat', event.lat]);
     if (event.lng !== undefined) fields.push(['lng', event.lng]);
-    if (event.startDate !== undefined) fields.push(['startDate', event.startDate.toISOString()]);
-    if (event.endDate !== undefined) fields.push(['endDate', event.endDate.toISOString()]);
+    if (event.startDate !== undefined)
+      fields.push(['startDate', event.startDate.toISOString()]);
+    if (event.endDate !== undefined)
+      fields.push(['endDate', event.endDate.toISOString()]);
     if (event.minAge !== undefined) fields.push(['minAge', event.minAge]);
     if (event.artist !== undefined) fields.push(['artist', event.artist]);
-    if (event.background !== undefined) fields.push(['background', event.background]);
+    if (event.background !== undefined)
+      fields.push(['background', event.background]);
     if (event.icon !== undefined) fields.push(['icon', event.icon]);
 
     return new Promise((resolve, reject) => {
@@ -96,14 +105,18 @@ export class EventRepository {
 
       const columns = fields.map(([column]) => `${column} = ?`).join(', ');
       const values = fields.map(([, value]) => value);
-      this.db.run(`UPDATE event SET ${columns} WHERE id = ?`, [...values, id], err => {
-        if (err) {
-          reject(err);
-          return;
-        }
+      this.db.run(
+        `UPDATE event SET ${columns} WHERE id = ?`,
+        [...values, id],
+        (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
 
-        this.findEventById(id).then(resolve, reject);
-      });
+          this.findEventById(id).then(resolve, reject);
+        },
+      );
     });
   }
 

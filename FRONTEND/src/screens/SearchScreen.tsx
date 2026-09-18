@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
+  FlatList,
   StyleSheet,
   Text,
   TextInput,
@@ -8,14 +9,9 @@ import {
   View,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
-type AppliedFilters = {
-  startDate: string | null;
-  endDate: string | null;
-  distance: number;
-  types: string[];
-  ageLimit?: string;
-};
+import { EventCard } from "../components/EventCard";
+import { sampleEvents } from "../resources/events";
+import type { AppliedFilters } from "../dto/AppliedFilters";
 
 export function SearchScreen() {
   const [searchText, setSearchText] = useState("");
@@ -24,6 +20,15 @@ export function SearchScreen() {
   );
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const filteredEvents = sampleEvents.filter((event) => {
+    const query = searchText.trim().toLowerCase();
+    return (
+      !query ||
+      event.name.toLowerCase().includes(query) ||
+      event.city.toLowerCase().includes(query) ||
+      event.artist?.toLowerCase().includes(query)
+    );
+  });
 
   useEffect(() => {
     const filters = route.params?.appliedFilters ?? null;
@@ -37,89 +42,107 @@ export function SearchScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchRow}>
-        <TextInput
-          style={styles.input}
-          value={searchText}
-          onChangeText={setSearchText}
-          placeholder="Search"
-          placeholderTextColor="#8a8a8a"
-          autoCapitalize="words"
-        />
+      <FlatList
+        data={filteredEvents}
+        keyExtractor={(event) => event.id.toString()}
+        contentContainerStyle={styles.list}
+        ListHeaderComponentStyle={styles.listHeader}
+        ListHeaderComponent={
+          <View>
+            <View style={styles.searchRow}>
+              <TextInput
+                style={styles.input}
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholder="Search"
+                placeholderTextColor="#8a8a8a"
+                autoCapitalize="words"
+              />
 
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={() => {
-            //vedem noi dupa
-          }}
-        >
-          <Text style={styles.buttonText}>Search</Text>
-        </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.searchButton}
+                onPress={() => undefined}
+              >
+                <Text style={styles.buttonText}>Search</Text>
+              </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() =>
-            navigation.navigate("Filter", {
-              currentFilters: activeFilters ?? {
-                startDate: null,
-                endDate: null,
-                distance: 2,
-                types: ["Concerts"],
-                ageLimit: "0+",
-              },
-            })
-          }
-        >
-          <Text style={styles.filterButtonText}>Filters</Text>
-        </TouchableOpacity>
-      </View>
-
-      {activeFilters && (
-        <View style={styles.filterSummary}>
-          <Text style={styles.filterSummaryText}>Active filters</Text>
-          <View style={styles.filterChipRow}>
-            {activeFilters.types.map((type) => (
-              <View key={type} style={styles.filterChip}>
-                <Text style={styles.filterChipText}>{type}</Text>
-              </View>
-            ))}
-            <View style={styles.filterChip}>
-              <Text style={styles.filterChipText}>
-                {activeFilters.distance} km
-              </Text>
+              <TouchableOpacity
+                style={styles.filterButton}
+                onPress={() =>
+                  navigation.navigate("Filter", {
+                    currentFilters: activeFilters ?? {
+                      startDate: null,
+                      endDate: null,
+                      distance: 2,
+                      types: ["Concerts"],
+                      ageLimit: "0+",
+                    },
+                  })
+                }
+              >
+                <Text style={styles.filterButtonText}>Filters</Text>
+              </TouchableOpacity>
             </View>
-            {activeFilters.startDate && (
-              <View style={styles.filterChip}>
-                <Text style={styles.filterChipText}>
-                  Start: {activeFilters.startDate}
-                </Text>
+
+            {activeFilters && (
+              <View style={styles.filterSummary}>
+                <Text style={styles.filterSummaryText}>Active filters</Text>
+                <View style={styles.filterChipRow}>
+                  {activeFilters.types.map((type) => (
+                    <View key={type} style={styles.filterChip}>
+                      <Text style={styles.filterChipText}>{type}</Text>
+                    </View>
+                  ))}
+                  <View style={styles.filterChip}>
+                    <Text style={styles.filterChipText}>
+                      {activeFilters.distance} km
+                    </Text>
+                  </View>
+                  {activeFilters.startDate && (
+                    <View style={styles.filterChip}>
+                      <Text style={styles.filterChipText}>
+                        Start: {activeFilters.startDate}
+                      </Text>
+                    </View>
+                  )}
+                  {activeFilters.endDate && (
+                    <View style={styles.filterChip}>
+                      <Text style={styles.filterChipText}>
+                        End: {activeFilters.endDate}
+                      </Text>
+                    </View>
+                  )}
+                  {activeFilters.ageLimit && (
+                    <View style={styles.filterChip}>
+                      <Text style={styles.filterChipText}>
+                        {activeFilters.ageLimit}
+                      </Text>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={styles.clearFilterChip}
+                    onPress={handleClearFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel="Clear filters"
+                  >
+                    <Text style={styles.clearFilterChipText}>X</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
-            {activeFilters.endDate && (
-              <View style={styles.filterChip}>
-                <Text style={styles.filterChipText}>
-                  End: {activeFilters.endDate}
-                </Text>
-              </View>
-            )}
-            {activeFilters.ageLimit && (
-              <View style={styles.filterChip}>
-                <Text style={styles.filterChipText}>
-                  {activeFilters.ageLimit}
-                </Text>
-              </View>
-            )}
-            <TouchableOpacity
-              style={styles.clearFilterChip}
-              onPress={handleClearFilters}
-              accessibilityRole="button"
-              accessibilityLabel="Clear filters"
-            >
-              <Text style={styles.clearFilterChipText}>X</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      )}
+        }
+        renderItem={({ item }) => (
+          <EventCard
+            event={item}
+            showFavorite
+            onPress={() => navigation.navigate("Event", { event: item })}
+          />
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No events match your search.</Text>
+        }
+      />
 
       <StatusBar style="auto" />
     </View>
@@ -132,6 +155,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#f6f6f6",
     paddingHorizontal: 12,
     paddingTop: 12,
+  },
+  list: {
+    paddingBottom: 18,
+  },
+  listHeader: {
+    marginBottom: 12,
+  },
+  emptyText: {
+    color: "#77718a",
+    fontSize: 16,
+    padding: 24,
+    textAlign: "center",
   },
   searchRow: {
     flexDirection: "row",
