@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFocusEffect } from "@react-navigation/native";
+import * as Location from "expo-location";
 import MapView, { Callout, Marker } from "react-native-maps";
 import type { MapStackParamList } from "../navigation/RootNavigator";
 import { sampleEvents } from "../resources/events";
@@ -8,6 +10,43 @@ import { sampleEvents } from "../resources/events";
 type MapScreenProps = NativeStackScreenProps<MapStackParamList, "MapMain">;
 
 export function MapScreen({ navigation }: MapScreenProps) {
+  const mapRef = useRef<MapView>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      (async () => {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          return;
+        }
+
+        const position = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+
+        if (!isActive || !mapRef.current) {
+          return;
+        }
+
+        mapRef.current.animateToRegion(
+          {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          },
+          500,
+        );
+      })();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
+
   const initialRegion = {
     latitude: sampleEvents[0]?.lat ?? 46.77,
     longitude: sampleEvents[0]?.lng ?? 23.5895,
@@ -18,6 +57,7 @@ export function MapScreen({ navigation }: MapScreenProps) {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
         showsUserLocation

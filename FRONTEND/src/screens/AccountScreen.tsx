@@ -40,6 +40,17 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
     await logout();
     setUsername("");
     setPassword("");
+
+    const parentNavigator = navigation.getParent() as
+      | { navigate: (routeName: string) => void }
+      | undefined;
+
+    if (parentNavigator) {
+      parentNavigator.navigate("Home");
+      return;
+    }
+
+    (navigation as any).navigate("Home");
   }
 
   return (

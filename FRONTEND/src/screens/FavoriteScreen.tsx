@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { EventCard } from "../components/EventCard";
@@ -26,18 +26,20 @@ export function FavoriteScreen({ navigation, route }: FavoriteScreenProps) {
   }, [navigation, removeFavorite, route.params?.removedEventId]);
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Your favorites</Text>
         <Text style={styles.subtitle}>Events you saved for later</Text>
       </View>
+
       <FlatList
+        data={events}
+        keyExtractor={(event) => event.id.toString()}
         contentContainerStyle={[
           styles.list,
           events.length === 0 && styles.emptyList,
         ]}
-        data={events}
-        keyExtractor={(event) => event.id.toString()}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <EventCard
             event={item}
@@ -55,8 +57,9 @@ export function FavoriteScreen({ navigation, route }: FavoriteScreenProps) {
           </Text>
         }
       />
+
       <StatusBar style="auto" />
-    </ScrollView>
+    </View>
   );
 }
 

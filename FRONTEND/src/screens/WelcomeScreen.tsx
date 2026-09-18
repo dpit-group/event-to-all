@@ -81,20 +81,12 @@ export function WelcomeScreen({
         </View>
       </View>
 
-      {/* BUTON EXPLOREAZĂ */}
-      <TouchableOpacity style={styles.primaryButton} onPress={onExplore}>
-        <Text style={styles.primaryButtonText}>Explorează Evenimentele</Text>
-      </TouchableOpacity>
-
       {/* CONTINUĂ CA GUEST */}
-      <TouchableOpacity style={styles.secondaryButton} onPress={onContinue}>
-        <Text style={styles.secondaryButtonText}>Continuă ca Guest</Text>
+      <TouchableOpacity style={styles.primaryButton} onPress={onContinue}>
+        <Text style={styles.primaryButtonText}>Continuă ca Guest</Text>
       </TouchableOpacity>
       {/*BUTON LOG IN*/}
-      <TouchableOpacity
-        style={styles.loginButton}
-        onPress={onLogin}
-      >
+      <TouchableOpacity style={styles.loginButton} onPress={onLogin}>
         <Text style={styles.secondaryButtonText}>Log In</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
