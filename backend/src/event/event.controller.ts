@@ -30,7 +30,9 @@ export class EventController {
   }
 
   @Post('filters')
-  findEventsByFilterBody(@Body() body: FilterRequest): EventResponseDto[] {
+  async findEventsByFilterBody(
+    @Body() body: FilterRequest,
+  ): Promise<EventResponseDto[]> {
     const filters = Array.isArray(body) ? body : body?.filters;
 
     if (
@@ -51,9 +53,9 @@ export class EventController {
   }
 
   @Get(['', 'filters'])
-  findEventsByFilters(
+  async findEventsByFilters(
     @Query() filters: Record<string, string>,
-  ): EventResponseDto[] {
+  ): Promise<EventResponseDto[]> {
     const { distance, latitude, longitude, ...simpleFilters } = filters;
 
     const parsedFilters: Filter[] = Object.entries(simpleFilters)
@@ -96,15 +98,15 @@ export class EventController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): EventResponseDto {
+  async findOne(@Param('id') id: string): Promise<EventResponseDto> {
     return this.eventService.findOne(id);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
-  ): EventResponseDto {
+  ): Promise<EventResponseDto> {
     return this.eventService.update(id, updateEventDto);
   }
 

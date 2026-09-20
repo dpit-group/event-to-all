@@ -1,39 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { randomUUID } from 'crypto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { EventRepository } from './event.repository';
-import { Event } from './entities/event.entity';
+import { filterEvents, Filter } from '../filter/filter';
+import {
+  mapCreateEventDtoToEntity,
+  mapEventToResponse,
+} from './mappers/event.mapper';
 
 @Injectable()
 export class EventService {
   constructor(private readonly eventRepository: EventRepository) {}
 
-  async create(createEventDto: CreateEventDto) {
-    const event: Omit<Event, 'id'> = {
-      name: createEventDto.name,
-      city: createEventDto.city,
-      address: createEventDto.address,
-      lat: createEventDto.lat,
-      lng: createEventDto.lng,
-      startDate: new Date(createEventDto.startDate),
-      endDate: createEventDto.endDate
-        ? new Date(createEventDto.endDate)
-        : undefined,
-      minAge: createEventDto.minAge,
-      artist: createEventDto.artist,
-      background: createEventDto.background,
-      icon: createEventDto.icon,
-    };
-
-    const savedEvent = await this.eventRepository.createEvent(event);
-
-    return savedEvent;
+  async create(createEventDto: CreateEventDto): Promise<EventResponseDto> {
+    const savedEvent = await this.eventRepository.createEvent(createEventDto);
+    return mapEventToResponse(savedEvent);
   }
   async findAll(): Promise<EventResponseDto[]> {
     const events = await this.eventRepository.findAllEvents();
-    return events;
+    return events.map(mapEventToResponse);
+  }
+
+  async findEventbyFilters(filters: Filter[]): Promise<EventResponseDto[]> {
+    const events = await this.eventRepository.findAllEvents();
+    return filterEvents(events, filters).map(mapEventToResponse);
   }
 
   async findOne(id: string): Promise<EventResponseDto> {
@@ -41,7 +32,7 @@ export class EventService {
     if (!event) {
       throw new NotFoundException('Event not found');
     }
-    return event;
+    return mapEventToResponse(event);
   }
 
   async update(
@@ -60,7 +51,7 @@ export class EventService {
     if (!event) {
       throw new NotFoundException('Event not found');
     }
-    return event;
+    return mapEventToResponse(event);
   }
 
   async deleteEvent(id: string): Promise<string> {
