@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
@@ -28,6 +29,7 @@ export function EventCard({
   variant = "compact",
 }: EventCardProps) {
   const isFeatured = variant === "featured";
+  const navigation = useNavigation<any>();
   const { isLoggedIn, isLoading } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = isFavorite(event.id);
@@ -57,6 +59,21 @@ export function EventCard({
         <Text style={styles.eventLocation}>
           {event.city} · {event.address}
         </Text>
+        <Pressable
+          accessibilityLabel={`See ${event.name} on map`}
+          accessibilityRole="button"
+          style={styles.mapButton}
+          onPress={(pressEvent) => {
+            pressEvent.stopPropagation();
+            navigation.getParent()?.navigate("Map", {
+              screen: "MapMain",
+              params: { event },
+            });
+          }}
+        >
+          <Ionicons name="map-outline" size={16} color="#fff" />
+          <Text style={styles.mapButtonText}>See on map</Text>
+        </Pressable>
       </View>
       {showFavorite ? (
         <Pressable
@@ -171,6 +188,22 @@ const styles = StyleSheet.create({
     color: "#77718a",
     fontSize: 13,
     marginTop: 3,
+  },
+  mapButton: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#f0eaff",
+    borderRadius: 16,
+    marginTop: 9,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+  },
+  mapButtonText: {
+    color: "#6f01ff",
+    fontSize: 12,
+    fontWeight: "700",
   },
   removeButton: {
     alignSelf: "flex-start",

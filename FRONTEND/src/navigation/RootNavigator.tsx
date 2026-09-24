@@ -29,7 +29,7 @@ export type RootTabParamList = {
 };
 
 export type MapStackParamList = {
-  MapMain: undefined;
+  MapMain: { event?: Event } | undefined;
   Event: { event: Event };
 };
 

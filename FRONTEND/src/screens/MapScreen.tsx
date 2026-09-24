@@ -9,14 +9,28 @@ import { sampleEvents } from "../resources/events";
 
 type MapScreenProps = NativeStackScreenProps<MapStackParamList, "MapMain">;
 
-export function MapScreen({ navigation }: MapScreenProps) {
+export function MapScreen({ navigation, route }: MapScreenProps) {
   const mapRef = useRef<MapView>(null);
+  const focusedEvent = route.params?.event;
 
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
 
       (async () => {
+        if (focusedEvent && mapRef.current) {
+          mapRef.current.animateToRegion(
+            {
+              latitude: focusedEvent.lat,
+              longitude: focusedEvent.lng,
+              latitudeDelta: 0.08,
+              longitudeDelta: 0.08,
+            },
+            500,
+          );
+          return;
+        }
+
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           return;
@@ -44,7 +58,7 @@ export function MapScreen({ navigation }: MapScreenProps) {
       return () => {
         isActive = false;
       };
-    }, []),
+    }, [focusedEvent]),
   );
 
   const initialRegion = {
