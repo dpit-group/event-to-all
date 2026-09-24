@@ -4,6 +4,7 @@ import {
   Image,
   Pressable,
   StyleSheet,
+  Share,
   Text,
   View,
 } from "react-native";
@@ -75,37 +76,73 @@ export function EventCard({
           <Text style={styles.mapButtonText}>See on map</Text>
         </Pressable>
       </View>
-      {showFavorite ? (
-        <Pressable
-          accessibilityLabel={
-            favorite
-              ? `Remove ${event.name} from favorites`
-              : `Add ${event.name} to favorites`
-          }
-          accessibilityRole="button"
-          hitSlop={8}
-          style={styles.favoriteButton}
-          onPress={(pressEvent) => {
-            pressEvent.stopPropagation();
+      <View style={styles.actionButtons}>
+  <Pressable
+    accessibilityLabel={`Your action for ${event.name}`}
+    accessibilityRole="button"
+    hitSlop={8}
+    style={styles.shareButton}
+    onPress={async (pressEvent) => {
+      pressEvent.stopPropagation();
+      
+      //console.log("Selected event:", event);
 
-            if (!isLoading && !isLoggedIn && !favorite) {
-              Alert.alert(
-                "Login required",
-                "You must be logged in to add events to favorites.",
-              );
-              return;
-            }
+      let sharedtext =
+      `${event.name}\n` +
+      `${event.artist}\n` +
+      `${event.date} · ${event.time}\n` +
+      `${event.city} · ${event.address}`;
 
-            toggleFavorite(event);
-          }}
-        >
-          <Ionicons
-            name={favorite ? "heart" : "heart-outline"}
-            size={24}
-            color={favorite ? "#d62828" : "#6f01ff"}
-          />
-        </Pressable>
-      ) : null}
+      try {
+        await Share.share({
+          message: sharedtext
+        })
+        
+      } catch (error) {
+        console.log("ERROR:", error);
+      }
+    }}
+  >
+    <Ionicons
+      name="share-outline"
+      size={24}
+      color="#6f01ff"
+    />
+  </Pressable>
+
+  {showFavorite ? (
+    <Pressable
+      accessibilityLabel={
+        favorite
+          ? `Remove ${event.name} from favorites`
+          : `Add ${event.name} to favorites`
+      }
+      accessibilityRole="button"
+      hitSlop={8}
+      style={styles.favoriteButton}
+      onPress={(pressEvent) => {
+        pressEvent.stopPropagation();
+
+        if (!isLoading && !isLoggedIn && !favorite) {
+          Alert.alert(
+            "Login required",
+            "You must be logged in to add events to favorites.",
+          );
+          return;
+        }
+
+        toggleFavorite(event);
+      }}
+    >
+      <Ionicons
+        name={favorite ? "heart" : "heart-outline"}
+        size={24}
+        color={favorite ? "#d62828" : "#6f01ff"}
+      />
+    </Pressable>
+  ) : null}
+</View>
+      
       {onRemove ? (
         <Pressable
           accessibilityLabel={`Remove ${event.name} from favorites`}
@@ -211,13 +248,29 @@ const styles = StyleSheet.create({
     paddingRight: 2,
   },
   favoriteButton: {
-    position: "absolute",
     top: 12,
     right: 10,
     zIndex: 1,
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 5,
+  },
+  actionButtons: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  shareButton: {
+      top: 12,
+      right: 10,
+      zIndex: 1,
+      backgroundColor: "#fff",
+      borderRadius: 20,
+      padding: 5,
   },
   chevron: {
     alignSelf: "center",
