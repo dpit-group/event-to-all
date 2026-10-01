@@ -4,9 +4,11 @@ import {
   Image,
   Pressable,
   StyleSheet,
+  Share,
   Text,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
@@ -28,6 +30,7 @@ export function EventCard({
   variant = "compact",
 }: EventCardProps) {
   const isFeatured = variant === "featured";
+  const navigation = useNavigation<any>();
   const { isLoggedIn, isLoading } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = isFavorite(event.id);
@@ -57,38 +60,89 @@ export function EventCard({
         <Text style={styles.eventLocation}>
           {event.city} · {event.address}
         </Text>
-      </View>
-      {showFavorite ? (
         <Pressable
-          accessibilityLabel={
-            favorite
-              ? `Remove ${event.name} from favorites`
-              : `Add ${event.name} to favorites`
-          }
+          accessibilityLabel={`See ${event.name} on map`}
           accessibilityRole="button"
-          hitSlop={8}
-          style={styles.favoriteButton}
+          style={styles.mapButton}
           onPress={(pressEvent) => {
             pressEvent.stopPropagation();
-
-            if (!isLoading && !isLoggedIn && !favorite) {
-              Alert.alert(
-                "Login required",
-                "You must be logged in to add events to favorites.",
-              );
-              return;
-            }
-
-            toggleFavorite(event);
+            navigation.getParent()?.navigate("Map", {
+              screen: "MapMain",
+              params: { event },
+            });
           }}
         >
-          <Ionicons
-            name={favorite ? "heart" : "heart-outline"}
-            size={24}
-            color={favorite ? "#d62828" : "#6f01ff"}
-          />
+          <Ionicons name="map-outline" size={16} color="#fff" />
+          <Text style={styles.mapButtonText}>See on map</Text>
         </Pressable>
-      ) : null}
+      </View>
+      <View style={styles.actionButtons}>
+  <Pressable
+    accessibilityLabel={`Your action for ${event.name}`}
+    accessibilityRole="button"
+    hitSlop={8}
+    style={styles.shareButton}
+    onPress={async (pressEvent) => {
+      pressEvent.stopPropagation();
+      
+      //console.log("Selected event:", event);
+
+      let sharedtext =
+      `${event.name}\n` +
+      `${event.artist}\n` +
+      `${event.date} · ${event.time}\n` +
+      `${event.city} · ${event.address}`;
+
+      try {
+        await Share.share({
+          message: sharedtext
+        })
+        
+      } catch (error) {
+        console.log("ERROR:", error);
+      }
+    }}
+  >
+    <Ionicons
+      name="share-outline"
+      size={24}
+      color="#6f01ff"
+    />
+  </Pressable>
+
+  {showFavorite ? (
+    <Pressable
+      accessibilityLabel={
+        favorite
+          ? `Remove ${event.name} from favorites`
+          : `Add ${event.name} to favorites`
+      }
+      accessibilityRole="button"
+      hitSlop={8}
+      style={styles.favoriteButton}
+      onPress={(pressEvent) => {
+        pressEvent.stopPropagation();
+
+        if (!isLoading && !isLoggedIn && !favorite) {
+          Alert.alert(
+            "Login required",
+            "You must be logged in to add events to favorites.",
+          );
+          return;
+        }
+
+        toggleFavorite(event);
+      }}
+    >
+      <Ionicons
+        name={favorite ? "heart" : "heart-outline"}
+        size={24}
+        color={favorite ? "#d62828" : "#6f01ff"}
+      />
+    </Pressable>
+  ) : null}
+</View>
+      
       {onRemove ? (
         <Pressable
           accessibilityLabel={`Remove ${event.name} from favorites`}
@@ -172,19 +226,51 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 3,
   },
+  mapButton: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#f0eaff",
+    borderRadius: 16,
+    marginTop: 9,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+  },
+  mapButtonText: {
+    color: "#6f01ff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
   removeButton: {
     alignSelf: "flex-start",
     paddingTop: 14,
     paddingRight: 2,
   },
   favoriteButton: {
-    position: "absolute",
     top: 12,
     right: 10,
     zIndex: 1,
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 5,
+  },
+  actionButtons: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  shareButton: {
+      top: 12,
+      right: 10,
+      zIndex: 1,
+      backgroundColor: "#fff",
+      borderRadius: 20,
+      padding: 5,
   },
   chevron: {
     alignSelf: "center",

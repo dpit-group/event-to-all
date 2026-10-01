@@ -1,4 +1,5 @@
 import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import {
   Alert,
   Image,
@@ -34,6 +35,9 @@ type EventScreenProps = {
   navigation: {
     goBack: () => void;
     navigate: (screen: string, params?: object) => void;
+    getParent?: () => {
+      navigate: (screen: string, params?: object) => void;
+    } | undefined;
   };
 };
 
@@ -76,6 +80,13 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
     );
   }
 
+  function seeOnMap() {
+    navigation.getParent?.()?.navigate("Map", {
+      screen: "MapMain",
+      params: { event },
+    });
+  }
+
   return (
     <ScrollView style={styles.container}>
       <Image source={{ uri: event.imageUrl }} style={styles.heroImage} />
@@ -101,12 +112,14 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
             {event.address}, {event.city}
           </Text>
         </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Coordinates</Text>
-          <Text style={styles.detailValue}>
-            {event.lat}, {event.lng}
-          </Text>
-        </View>
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={styles.mapButton}
+          onPress={seeOnMap}
+        >
+          <Ionicons name="map-outline" size={15} color="#6f01ff" />
+          <Text style={styles.mapButtonText}>See on map</Text>
+        </TouchableOpacity>
         {event.minAge !== undefined ? (
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Minimum age</Text>
@@ -207,6 +220,22 @@ const styles = StyleSheet.create({
     color: "#20233d",
     fontSize: 16,
     lineHeight: 22,
+  },
+  mapButton: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f0eaff",
+    borderRadius: 16,
+    gap: 5,
+    marginTop: 8,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+  },
+  mapButtonText: {
+    color: "#6f01ff",
+    fontSize: 13,
+    fontWeight: "700",
   },
   removeFavoriteButton: {
     marginHorizontal: 20,

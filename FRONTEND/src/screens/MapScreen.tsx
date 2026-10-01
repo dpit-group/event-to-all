@@ -1,22 +1,36 @@
 import React, { useCallback, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import type { MapStackParamList } from "../navigation/RootNavigator";
 import { sampleEvents } from "../resources/events";
 
 type MapScreenProps = NativeStackScreenProps<MapStackParamList, "MapMain">;
 
-export function MapScreen({ navigation }: MapScreenProps) {
+export function MapScreen({ navigation, route }: MapScreenProps) {
   const mapRef = useRef<MapView>(null);
+  const focusedEvent = route.params?.event;
 
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
 
       (async () => {
+        if (focusedEvent && mapRef.current) {
+          mapRef.current.animateToRegion(
+            {
+              latitude: focusedEvent.lat,
+              longitude: focusedEvent.lng,
+              latitudeDelta: 0.08,
+              longitudeDelta: 0.08,
+            },
+            500,
+          );
+          return;
+        }
+
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           return;
@@ -34,8 +48,8 @@ export function MapScreen({ navigation }: MapScreenProps) {
           {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
           },
           500,
         );
@@ -44,7 +58,7 @@ export function MapScreen({ navigation }: MapScreenProps) {
       return () => {
         isActive = false;
       };
-    }, []),
+    }, [focusedEvent]),
   );
 
   const initialRegion = {
@@ -62,6 +76,7 @@ export function MapScreen({ navigation }: MapScreenProps) {
         initialRegion={initialRegion}
         showsUserLocation
         showsMyLocationButton
+        provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
       >
         {sampleEvents.map((event) => (
           <Marker
