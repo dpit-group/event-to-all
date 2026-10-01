@@ -3,6 +3,10 @@
     "typescript": "7.0"
   },
   "dependencies": {
+    "expo": "^57.0.24",
+    "expo-location": "~57.0.19",
+    "react-native-maps": "1.27.2",
+    "react-native-webview": "13.16.1",
     "sqlite3": "^6.0.1"
   }
 }

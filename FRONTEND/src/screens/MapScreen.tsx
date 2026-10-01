@@ -1,9 +1,9 @@
 import React, { useCallback, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import type { MapStackParamList } from "../navigation/RootNavigator";
 import { sampleEvents } from "../resources/events";
 
@@ -76,6 +76,7 @@ export function MapScreen({ navigation, route }: MapScreenProps) {
         initialRegion={initialRegion}
         showsUserLocation
         showsMyLocationButton
+        provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
       >
         {sampleEvents.map((event) => (
           <Marker
