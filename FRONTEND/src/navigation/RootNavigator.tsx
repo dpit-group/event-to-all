@@ -4,9 +4,14 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { AccountScreen } from "../screens/AccountScreen";
+import {
+  BoughtTicketDetailsScreen,
+  BoughtTicketPassesScreen,
+} from "../screens/BoughtTicketDetailsScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { FavoriteScreen } from "../screens/FavoriteScreen";
 import { EventScreen } from "../screens/EventScreen";
+import { TicketScreen } from "../screens/TicketScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { PRIMARY_COLOR } from "../constant";
@@ -31,10 +36,23 @@ export type RootTabParamList = {
 export type MapStackParamList = {
   MapMain: { event?: Event } | undefined;
   Event: { event: Event };
+  Ticket: { event: Event };
 };
 
 export type AccountStackParamList = {
   AccountMain: undefined;
+  BoughtTicketDetails: {
+    event: Event;
+    purchaseId?: string;
+    adultTickets?: number;
+    childTickets?: number;
+  };
+  BoughtTicketPasses: {
+    event: Event;
+    purchaseId?: string;
+    adultTickets?: number;
+    childTickets?: number;
+  };
   Register: undefined;
   AddEvent: undefined;
   EditEvent: { event?: Event } | undefined;
@@ -43,17 +61,20 @@ export type AccountStackParamList = {
 export type MyEventsStackParamList = {
   MyEventsMain: { removedEventId?: number } | undefined;
   Event: { event: Event; fromMyEvents?: boolean };
+  Ticket: { event: Event };
   EditEvent: { event: Event };
 };
 
 export type FavoriteStackParamList = {
   FavoriteMain: { removedEventId?: number } | undefined;
   Event: { event: Event; fromFavorites?: boolean };
+  Ticket: { event: Event };
 };
 
 export type HomeStackParamList = {
   HomeMain: undefined;
   Event: { event: Event };
+  Ticket: { event: Event };
 };
 
 export type SearchStackParamList = {
@@ -77,6 +98,7 @@ export type SearchStackParamList = {
         } | null;
       }
     | undefined;
+  Ticket: { event: Event };
   Event: { event: Event };
 };
 
@@ -118,6 +140,11 @@ function SearchStackNavigator() {
         component={EventScreen}
         options={{ title: "Event" }}
       />
+      <SearchStack.Screen
+        name="Ticket"
+        component={TicketScreen}
+        options={{ title: "Tickets" }}
+      />
     </SearchStack.Navigator>
   );
 }
@@ -129,6 +156,16 @@ function AccountStackNavigator() {
         name="AccountMain"
         component={AccountScreen}
         options={{ headerShown: false }}
+      />
+      <AccountStack.Screen
+        name="BoughtTicketDetails"
+        component={BoughtTicketDetailsScreen}
+        options={{ title: "Ticket details" }}
+      />
+      <AccountStack.Screen
+        name="BoughtTicketPasses"
+        component={BoughtTicketPassesScreen}
+        options={{ title: "Your tickets" }}
       />
       <AccountStack.Screen
         name="Register"
@@ -162,6 +199,11 @@ function FavoriteStackNavigator() {
         component={EventScreen}
         options={{ title: "Event" }}
       />
+      <FavoriteStack.Screen
+        name="Ticket"
+        component={TicketScreen}
+        options={{ title: "Tickets" }}
+      />
     </FavoriteStack.Navigator>
   );
 }
@@ -178,6 +220,11 @@ function HomeStackNavigator() {
         name="Event"
         component={EventScreen}
         options={{ title: "Event" }}
+      />
+      <HomeStack.Screen
+        name="Ticket"
+        component={TicketScreen}
+        options={{ title: "Tickets" }}
       />
     </HomeStack.Navigator>
   );
@@ -196,6 +243,11 @@ function MapStackNavigator() {
         component={EventScreen}
         options={{ title: "Event" }}
       />
+      <MapStack.Screen
+        name="Ticket"
+        component={TicketScreen}
+        options={{ title: "Tickets" }}
+      />
     </MapStack.Navigator>
   );
 }
@@ -212,6 +264,11 @@ function MyEventsStackNavigator() {
         name="Event"
         component={EventScreen}
         options={{ title: "Event" }}
+      />
+      <MyEventsStack.Screen
+        name="Ticket"
+        component={TicketScreen}
+        options={{ title: "Tickets" }}
       />
       <MyEventsStack.Screen
         name="EditEvent"

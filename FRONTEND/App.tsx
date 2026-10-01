@@ -12,6 +12,7 @@ import { Logo } from "./src/components/Logo";
 import { WelcomeScreen } from "./src/screens/WelcomeScreen";
 import { AuthProvider } from "./src/context/AuthContext";
 import { FavoritesProvider } from "./src/context/FavoritesContext";
+import { PurchasedEventsProvider } from "./src/context/PurchasedEventsContext";
 
 export default function App() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -22,24 +23,26 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <FavoritesProvider>
-          <AppContent
-            showWelcome={showWelcome}
-            initialTab={initialTab}
-            onContinue={() => {
-              setInitialTab("Home");
-              setShowWelcome(false);
-            }}
-            onExplore={() => {
-              setInitialTab("Map");
-              setShowWelcome(false);
-            }}
-            onLogin={() => {
-              setInitialTab("Account");
-              setShowWelcome(false);
-            }}
-          />
-        </FavoritesProvider>
+        <PurchasedEventsProvider>
+          <FavoritesProvider>
+            <AppContent
+              showWelcome={showWelcome}
+              initialTab={initialTab}
+              onContinue={() => {
+                setInitialTab("Home");
+                setShowWelcome(false);
+              }}
+              onExplore={() => {
+                setInitialTab("Map");
+                setShowWelcome(false);
+              }}
+              onLogin={() => {
+                setInitialTab("Account");
+                setShowWelcome(false);
+              }}
+            />
+          </FavoritesProvider>
+        </PurchasedEventsProvider>
       </AuthProvider>
       <StatusBar style="auto" />
     </SafeAreaProvider>

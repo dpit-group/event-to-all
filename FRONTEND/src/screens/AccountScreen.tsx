@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import {
   ScrollView,
   StyleSheet,
@@ -13,6 +14,8 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AccountStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../context/AuthContext";
+import { BoughtTickets } from "../components/BoughtTickets";
+import { usePurchasedEvents } from "../context/PurchasedEventsContext";
 
 type AccountScreenProps = NativeStackScreenProps<
   AccountStackParamList,
@@ -21,6 +24,7 @@ type AccountScreenProps = NativeStackScreenProps<
 
 export function AccountScreen({ navigation }: AccountScreenProps) {
   const { isLoggedIn, login, logout, user } = useAuth();
+  const { purchasedEvents } = usePurchasedEvents();
   const [isBusinessAccount, setIsBusinessAccount] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -30,10 +34,7 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
       return;
     }
 
-    await login(
-      username.trim(),
-      isBusinessAccount ? "business" : "personal",
-    );
+    await login(username.trim(), isBusinessAccount ? "business" : "personal");
   }
 
   async function handleLogout() {
@@ -55,6 +56,9 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
 
   return (
     <View style={styles.container}>
+      <View pointerEvents="none" style={styles.accountIcon}>
+        <Ionicons name="person" size={32} color="#6f01ff" />
+      </View>
       {isLoggedIn ? (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.loggedInContainer}>
@@ -65,6 +69,21 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
                   ? "Business account"
                   : "Personal account"}
               </Text>
+            </View>
+
+            <View style={styles.boughtTicketsSection}>
+              <Text style={styles.boughtTicketsTitle}>Bought Tickets</Text>
+              <BoughtTickets
+                tickets={purchasedEvents}
+                onSelectTicket={(ticket) =>
+                  navigation.navigate("BoughtTicketDetails", {
+                    event: ticket,
+                    purchaseId: ticket.purchaseId,
+                    adultTickets: ticket.adultTickets,
+                    childTickets: ticket.childTickets,
+                  })
+                }
+              />
             </View>
 
             <View style={styles.accountActions}>
@@ -143,8 +162,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     width: "100%",
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 24,
+    justifyContent: "flex-start",
+    paddingTop: 64,
+    paddingBottom: 12,
   },
   form: {
     width: "100%",
@@ -156,6 +176,14 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 20,
     color: "#20233d",
+  },
+  accountIcon: {
+    alignItems: "center",
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 12,
+    zIndex: 1,
   },
   input: {
     width: "100%",
@@ -203,6 +231,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   loggedInContainer: {
+    flex: 1,
     width: "100%",
     maxWidth: 500,
     alignItems: "center",
@@ -212,7 +241,19 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     alignItems: "center",
   },
+  boughtTicketsSection: {
+    width: "100%",
+    maxWidth: 400,
+    marginBottom: 20,
+  },
+  boughtTicketsTitle: {
+    color: "#20233d",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
   accountActions: {
+    flex: 1,
     width: "100%",
     maxWidth: 400,
     alignItems: "center",
@@ -250,22 +291,20 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     marginTop: "auto",
-    paddingTop: 28,
+    paddingTop: 16,
   },
   logoutButton: {
-    width: "100%",
-    maxWidth: 400,
-    alignSelf: "center",
+    minWidth: 120,
     borderWidth: 1,
     borderColor: "#6f01ff",
     borderRadius: 6,
-    paddingHorizontal: 28,
-    paddingVertical: 11,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
     alignItems: "center",
   },
   logoutButtonText: {
     color: "#6f01ff",
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "600",
   },
 });

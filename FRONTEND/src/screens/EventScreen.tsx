@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth } from "../context/AuthContext";
+import { useFavorites } from "../context/FavoritesContext";
 
 export type Event = {
   id: number;
@@ -35,14 +37,19 @@ type EventScreenProps = {
   navigation: {
     goBack: () => void;
     navigate: (screen: string, params?: object) => void;
-    getParent?: () => {
-      navigate: (screen: string, params?: object) => void;
-    } | undefined;
+    getParent?: () =>
+      | {
+          navigate: (screen: string, params?: object) => void;
+        }
+      | undefined;
   };
 };
 
 export function EventScreen({ route, navigation }: EventScreenProps) {
   const { event } = route.params;
+  const { isLoggedIn, isLoading } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(event.id);
 
   function editEvent() {
     navigation.navigate("EditEvent", { event });
@@ -78,6 +85,23 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
         },
       ],
     );
+  }
+
+  function handleFavoritePress() {
+    if (favorite && route.params.fromFavorites) {
+      removeFromFavorites();
+      return;
+    }
+
+    if (!favorite && !isLoading && !isLoggedIn) {
+      Alert.alert(
+        "Login required",
+        "You must be logged in to add events to favorites.",
+      );
+      return;
+    }
+
+    toggleFavorite(event);
   }
 
   function seeOnMap() {
@@ -127,13 +151,22 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
           </View>
         ) : null}
       </View>
-      {route.params.fromFavorites ? (
+      {!route.params.fromMyEvents ? (
         <TouchableOpacity
-          style={styles.removeFavoriteButton}
-          onPress={removeFromFavorites}
+          accessibilityLabel={
+            favorite
+              ? `Remove ${event.name} from favorites`
+              : `Add ${event.name} to favorites`
+          }
+          accessibilityRole="button"
+          style={[
+            styles.favoriteButton,
+            favorite && styles.removeFavoriteButton,
+          ]}
+          onPress={handleFavoritePress}
         >
           <Text style={styles.removeFavoriteButtonText}>
-            Remove from favorites
+            {favorite ? "Remove from favorites" : "Add to favorites"}
           </Text>
         </TouchableOpacity>
       ) : null}
@@ -149,6 +182,16 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
             <Text style={styles.actionButtonText}>Remove Event</Text>
           </TouchableOpacity>
         </View>
+      ) : null}
+      {!route.params.fromMyEvents ? (
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={styles.buyTicketsButton}
+          onPress={() => navigation.navigate("Ticket", { event })}
+        >
+          <Ionicons name="ticket-outline" size={20} color="#fff" />
+          <Text style={styles.buyTicketsButtonText}>Buy tickets</Text>
+        </TouchableOpacity>
       ) : null}
       <StatusBar style="light" />
     </ScrollView>
@@ -245,6 +288,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
   },
+  favoriteButton: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+    borderRadius: 6,
+    backgroundColor: "#6f01ff",
+    paddingVertical: 14,
+    alignItems: "center",
+  },
   removeFavoriteButtonText: {
     color: "#fff",
     fontSize: 16,
@@ -272,6 +323,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  buyTicketsButton: {
+    alignItems: "center",
+    alignSelf: "center",
+    backgroundColor: "#ff7417",
+    borderRadius: 6,
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "center",
+    marginHorizontal: 20,
+    marginBottom: 28,
+    paddingVertical: 15,
+    width: "88%",
+  },
+  buyTicketsButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "700",

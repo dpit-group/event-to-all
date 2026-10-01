@@ -77,72 +77,67 @@ export function EventCard({
         </Pressable>
       </View>
       <View style={styles.actionButtons}>
-  <Pressable
-    accessibilityLabel={`Your action for ${event.name}`}
-    accessibilityRole="button"
-    hitSlop={8}
-    style={styles.shareButton}
-    onPress={async (pressEvent) => {
-      pressEvent.stopPropagation();
-      
-      //console.log("Selected event:", event);
+        <Pressable
+          accessibilityLabel={`Your action for ${event.name}`}
+          accessibilityRole="button"
+          hitSlop={8}
+          style={styles.shareButton}
+          onPress={async (pressEvent) => {
+            pressEvent.stopPropagation();
 
-      let sharedtext =
-      `${event.name}\n` +
-      `${event.artist}\n` +
-      `${event.date} · ${event.time}\n` +
-      `${event.city} · ${event.address}`;
+            //console.log("Selected event:", event);
 
-      try {
-        await Share.share({
-          message: sharedtext
-        })
-        
-      } catch (error) {
-        console.log("ERROR:", error);
-      }
-    }}
-  >
-    <Ionicons
-      name="share-outline"
-      size={24}
-      color="#6f01ff"
-    />
-  </Pressable>
+            let sharedtext =
+              `${event.name}\n` +
+              `${event.artist}\n` +
+              `${event.date} · ${event.time}\n` +
+              `${event.city} · ${event.address}`;
 
-  {showFavorite ? (
-    <Pressable
-      accessibilityLabel={
-        favorite
-          ? `Remove ${event.name} from favorites`
-          : `Add ${event.name} to favorites`
-      }
-      accessibilityRole="button"
-      hitSlop={8}
-      style={styles.favoriteButton}
-      onPress={(pressEvent) => {
-        pressEvent.stopPropagation();
+            try {
+              await Share.share({
+                message: sharedtext,
+              });
+            } catch (error) {
+              console.log("ERROR:", error);
+            }
+          }}
+        >
+          <Ionicons name="share-outline" size={24} color="#6f01ff" />
+        </Pressable>
 
-        if (!isLoading && !isLoggedIn && !favorite) {
-          Alert.alert(
-            "Login required",
-            "You must be logged in to add events to favorites.",
-          );
-          return;
-        }
+        {showFavorite ? (
+          <Pressable
+            accessibilityLabel={
+              favorite
+                ? `Remove ${event.name} from favorites`
+                : `Add ${event.name} to favorites`
+            }
+            accessibilityRole="button"
+            hitSlop={8}
+            style={styles.favoriteButton}
+            onPress={(pressEvent) => {
+              pressEvent.stopPropagation();
 
-        toggleFavorite(event);
-      }}
-    >
-      <Ionicons
-        name={favorite ? "heart" : "heart-outline"}
-        size={24}
-        color={favorite ? "#d62828" : "#6f01ff"}
-      />
-    </Pressable>
-  ) : null}
-</View>
-      
+              if (!isLoading && !isLoggedIn && !favorite) {
+                Alert.alert(
+                  "Login required",
+                  "You must be logged in to add events to favorites.",
+                );
+                return;
+              }
+
+              toggleFavorite(event);
+            }}
+          >
+            <Ionicons
+              name={favorite ? "heart" : "heart-outline"}
+              size={24}
+              color={favorite ? "#d62828" : "#6f01ff"}
+            />
+          </Pressable>
+        ) : null}
+      </View>
+
       {onRemove ? (
         <Pressable
           accessibilityLabel={`Remove ${event.name} from favorites`}
@@ -181,7 +176,7 @@ const styles = StyleSheet.create({
   },
   featuredCard: {
     flexDirection: "column",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   featuredAccent: {
     width: "100%",
@@ -193,7 +188,7 @@ const styles = StyleSheet.create({
   },
   featuredImage: {
     width: "100%",
-    height: 220,
+    height: 195,
   },
   cardContent: {
     flex: 1,
@@ -203,7 +198,7 @@ const styles = StyleSheet.create({
     padding: 9,
   },
   featuredCardContent: {
-    padding: 20,
+    padding: 16,
   },
   eventName: {
     color: "#20233d",
@@ -265,12 +260,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   shareButton: {
-      top: 12,
-      right: 10,
-      zIndex: 1,
-      backgroundColor: "#fff",
-      borderRadius: 20,
-      padding: 5,
+    top: 12,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 5,
   },
   chevron: {
     alignSelf: "center",
