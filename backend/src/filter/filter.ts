@@ -1,12 +1,12 @@
-import { Event } from "../event/entities/event.entity";
+import { Event } from '../event/entities/event.entity';
 
 export enum EventType {
-  Clubs = "Clubs",
-  Concerts = "Concerts",
-  Festivals = "Festivals",
-  Parties = "Parties",
-  Cultural = "Cultural",
-  ProductLaunch = "Product Launch",
+  Clubs = 'Clubs',
+  Concerts = 'Concerts',
+  Festivals = 'Festivals',
+  Parties = 'Parties',
+  Cultural = 'Cultural',
+  ProductLaunch = 'Product Launch',
 }
 
 export enum MinAge {
@@ -51,18 +51,19 @@ export function filterEvents(events: Event[], filters: Filter[]): Event[] {
   return events.filter((event) =>
     filters.every((filter) => {
       switch (filter.criteria) {
-        case "city":
+        case 'city':
           return event.city.toLowerCase() === filter.value.toLowerCase();
-        case "type":
-          return (
-            event.type?.toLowerCase() ===
-            filter.value.toLowerCase()
-          );
-        case "minAge":
+        case 'type':
+          return filter.value
+            .split(',')
+            .some(
+              (type) => event.type?.toLowerCase() === type.trim().toLowerCase(),
+            );
+        case 'minAge':
           return (event.minAge ?? 0) >= Number(filter.value);
-        case "name":
+        case 'name':
           return event.name.toLowerCase().includes(filter.value.toLowerCase());
-        case "distance": {
+        case 'distance': {
           try {
             const distanceFilter = JSON.parse(filter.value) as DistanceFilter;
 

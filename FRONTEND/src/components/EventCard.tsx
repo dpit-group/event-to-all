@@ -13,7 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
 import type { Event } from "../dto/Events";
-
+import { formatEventDate } from "../services/ParseDateString";
 type EventCardProps = {
   event: Event;
   onPress: () => void;
@@ -35,15 +35,6 @@ export function EventCard({
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = isFavorite(event.id);
 
-  const formatEventDate = (date: Date | string | undefined) => {
-    const parsedDate = date instanceof Date ? date : new Date(date ?? "");
-
-    if (!date || Number.isNaN(parsedDate.getTime())) {
-      return "Date unavailable";
-    }
-
-    return parsedDate.toLocaleDateString("en-GB");
-  };
 
   return (
     <Pressable
@@ -52,7 +43,9 @@ export function EventCard({
     >
       <View style={[styles.cardAccent, isFeatured && styles.featuredAccent]} />
       <Image
-        source={{ uri: event.background }}
+         source={{
+    uri: `data:image/jpeg;base64,${event.background}`
+  }}
         style={[styles.thumbnail, isFeatured && styles.featuredImage]}
       />
       <View

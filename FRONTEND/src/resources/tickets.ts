@@ -1,5 +1,5 @@
 import type { Event } from "../screens/EventScreen";
-import { sampleEvents } from "./events";
+import { sampleEvents } from "./GetAll";
 
 export const sampleBoughtTickets: Event[] = sampleEvents.filter((event) =>
   [2, 5].includes(event.id),

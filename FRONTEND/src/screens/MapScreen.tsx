@@ -5,13 +5,24 @@ import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import type { MapStackParamList } from "../navigation/RootNavigator";
-import { sampleEvents } from "../resources/events";
+import { events as sampleEvents } from "../resources/GetAll";
 
 type MapScreenProps = NativeStackScreenProps<MapStackParamList, "MapMain">;
 
 export function MapScreen({ navigation, route }: MapScreenProps) {
   const mapRef = useRef<MapView>(null);
   const focusedEvent = route.params?.event;
+  
+  
+  const formatEventDate = (date: Date | string | undefined) => {
+    const parsedDate = date instanceof Date ? date : new Date(date ?? "");
+
+    if (!date || Number.isNaN(parsedDate.getTime())) {
+      return "Date unavailable";
+    }
+
+    return parsedDate.toLocaleDateString("en-GB");
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -97,7 +108,7 @@ export function MapScreen({ navigation, route }: MapScreenProps) {
               >
                 <Text style={styles.calloutTitle}>{event.name}</Text>
                 <Text style={styles.calloutText}>{event.city}</Text>
-                <Text style={styles.calloutText}>{event.date}</Text>
+                <Text style={styles.calloutText}>{formatEventDate(event.startDate)}</Text>
               </TouchableOpacity>
             </Callout>
           </Marker>

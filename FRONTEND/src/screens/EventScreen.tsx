@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
 import type { Event } from "../dto/Events";
+import { formatEventDate } from "../services/ParseDateString";
 
 export type { Event };
 
@@ -103,7 +104,9 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
   return (
     <ScrollView style={styles.container}>
       <Image
-        source={{ uri: event.background}}
+         source={{
+    uri: `data:image/jpeg;base64,${event.background}`
+  }}
         style={styles.heroImage}
       />
       <View style={styles.hero}>
@@ -119,7 +122,7 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>When</Text>
           <Text style={styles.detailValue}>
-            {event.date} at {event.time}
+            {formatEventDate(event.startDate)}
           </Text>
         </View>
         <View style={styles.detailRow}>

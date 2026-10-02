@@ -13,6 +13,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AccountStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../context/AuthContext";
+import { userService } from "../services/UserService";
 
 type RegisterScreenProps = NativeStackScreenProps<
   AccountStackParamList,
@@ -22,6 +23,8 @@ type RegisterScreenProps = NativeStackScreenProps<
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
@@ -36,6 +39,42 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
     setPasswordError("");
     return true;
+  }
+
+  async function handleRegister() {
+    if (
+      !name.trim() ||
+      !username.trim() ||
+      !phoneNumber.trim() ||
+      !email.trim() ||
+      !password
+    ) {
+      Alert.alert("Missing details", "Complete all fields to register.");
+      return;
+    }
+
+    if (!handleConfirmPasswordChange()) {
+      Alert.alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      const registeredUser = await userService.register({
+        name: name.trim(),
+        username: username.trim(),
+        phoneNumber: phoneNumber.trim(),
+        email: email.trim(),
+        password,
+        isBusinessAccount,
+      });
+      await login(
+        registeredUser.username || registeredUser.name,
+        registeredUser.isBusinessAccount ? "business" : "personal",
+      );
+      navigation.navigate("AccountMain");
+    } catch {
+      Alert.alert("Registration failed", "Check your details and try again.");
+    }
   }
 
   return (
@@ -53,6 +92,21 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
         value={username}
         onChangeText={setUsername}
         autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Phone number"
+        value={phoneNumber}
+        onChangeText={setPhoneNumber}
+        keyboardType="phone-pad"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Email address"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
@@ -81,20 +135,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
           onValueChange={setIsBusinessAccount}
         />
       </View>
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={async () => {
-          if (handleConfirmPasswordChange()) {
-            await login(
-              username.trim() || name.trim(),
-              isBusinessAccount ? "business" : "personal",
-            );
-            navigation.navigate("AccountMain");
-          } else {
-            Alert.alert("Passwords do not match");
-          }
-        }}
-      >
+      <TouchableOpacity style={styles.primaryButton} onPress={handleRegister}>
         <Text style={styles.primaryButtonText}>Register</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />

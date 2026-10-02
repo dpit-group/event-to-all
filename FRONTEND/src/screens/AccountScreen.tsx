@@ -2,9 +2,9 @@ import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -16,6 +16,7 @@ import type { AccountStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../context/AuthContext";
 import { BoughtTickets } from "../components/BoughtTickets";
 import { usePurchasedEvents } from "../context/PurchasedEventsContext";
+import { userService } from "../services/UserService";
 
 type AccountScreenProps = NativeStackScreenProps<
   AccountStackParamList,
@@ -25,21 +26,29 @@ type AccountScreenProps = NativeStackScreenProps<
 export function AccountScreen({ navigation }: AccountScreenProps) {
   const { isLoggedIn, login, logout, user } = useAuth();
   const { purchasedEvents } = usePurchasedEvents();
-  const [isBusinessAccount, setIsBusinessAccount] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   async function handleLogin() {
-    if (!username.trim() || !password) {
+    if (!email.trim() || !password) {
+      Alert.alert("Missing details", "Enter your email and password.");
       return;
     }
 
-    await login(username.trim(), isBusinessAccount ? "business" : "personal");
+    try {
+      const authenticatedUser = await userService.login(email.trim(), password);
+      await login(
+        authenticatedUser.username || authenticatedUser.name,
+        authenticatedUser.isBusinessAccount ? "business" : "personal",
+      );
+    } catch {
+      Alert.alert("Login failed", "Check your email and password and try again.");
+    }
   }
 
   async function handleLogout() {
     await logout();
-    setUsername("");
+    setEmail("");
     setPassword("");
 
     const parentNavigator = navigation.getParent() as
@@ -113,10 +122,11 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
 
           <TextInput
             style={styles.input}
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
             autoCapitalize="none"
+            keyboardType="email-address"
           />
           <TextInput
             style={styles.input}
@@ -125,15 +135,6 @@ export function AccountScreen({ navigation }: AccountScreenProps) {
             onChangeText={setPassword}
             secureTextEntry
           />
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>
-              {isBusinessAccount ? "Business account" : "Personal account"}
-            </Text>
-            <Switch
-              value={isBusinessAccount}
-              onValueChange={setIsBusinessAccount}
-            />
-          </View>
           <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
             <Text style={styles.primaryButtonText}>Log in</Text>
           </TouchableOpacity>
@@ -257,18 +258,6 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
     alignItems: "center",
-  },
-  toggleRow: {
-    width: "100%",
-    maxWidth: 400,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 8,
-  },
-  toggleLabel: {
-    color: "#20233d",
-    fontSize: 16,
   },
   addEventButton: {
     width: "100%",

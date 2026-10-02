@@ -20,6 +20,7 @@ import type {
   MyEventsStackParamList,
 } from "../navigation/RootNavigator";
 import type { Event } from "../dto/Events";
+import { formatEventDate } from "../services/ParseDateString";
 type EditEventProps =
   | NativeStackScreenProps<AccountStackParamList, "EditEvent">
   | NativeStackScreenProps<MyEventsStackParamList, "EditEvent">;
@@ -43,7 +44,7 @@ type EventDraft = {
   time: string;
   minAge: AgeLimit | "";
   artist: string;
-  image: string;
+  background: string;
 };
 
 const originalEvent: EventDraft = {
@@ -56,7 +57,7 @@ const originalEvent: EventDraft = {
   time: "20:00",
   minAge: AgeLimit.EighteenPlus,
   artist: "The Midnight Club",
-  image:
+  background:
     "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80",
 };
 
@@ -65,17 +66,23 @@ function toEventDraft(event?: Event): EventDraft {
     return originalEvent;
   }
 
+  const formattedStartDate = formatEventDate(event.startDate);
+  const [date, time] =
+    formattedStartDate === "Date unavailable"
+      ? ["", ""]
+      : formattedStartDate.split(" at ");
+
   return {
     name: event.name,
     city: event.city,
     address: event.address,
     lng: String(event.lng),
     lat: String(event.lat),
-    date: event.date ?? "",
-    time: event.time ?? "",
+    date,
+    time,
     minAge: event.minAge === undefined ? "" : String(event.minAge) as AgeLimit,
     artist: event.artist ?? "",
-    image: event.imageUrl ?? event.background ?? "",
+    background: event.background ?? "",
   };
 }
 
@@ -135,8 +142,8 @@ export function EditEventScreen({ navigation, route }: EditEventProps) {
           <TextInput
             style={styles.input}
             placeholder="Image URL"
-            value={event.image}
-            onChangeText={(value) => updateEvent("image", value)}
+            value={event.background}
+            onChangeText={(value) => updateEvent("background", value)}
           />
         </View>
 

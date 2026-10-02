@@ -1,31 +1,52 @@
 import { api } from "../api/client";
 import type { Event } from "../dto/Events";
+import type { AppliedFilters } from "../dto/AppliedFilters";
 
-let event: Event[];
-
-let nextId = 0;
-function generateId(): string {
-  return `event-${Date.now()}-${nextId++}`;
-}
-  class EventService {
-private readonly path = "/event";
+class EventService {
+  private readonly path = "/event";
 
   async getAll(): Promise<Event[]> {
     console.log("Fetching all events from API");
     const { data } = await api.get<Event[]>(this.path);
-    console.log("Received events from API:", data);``
+    console.log("Received events from API:", data);
     return data;
-    }
+  }
 
     async getById(id: string): Promise<Event> {
     const { data } = await api.get<Event>(`${this.path}/${id}`);
     return data;
-    }
+  }
 
   async create(event: Event): Promise<Event> {
     const { data } = await api.post<Event>(this.path, event);
     return data;
   }
+
+  async getFilteredEvents(filters: AppliedFilters | null): Promise<Event[]> {
+    console.log("Fetching filtered events from API");
+    const params: Record<string, string> = {};
+    if (filters?.types.length) {
+      params.type = filters.types.join(",");
+    }
+    if (filters?.startDate) {
+      params.startDate = filters.startDate;
+    }
+    if (filters?.endDate) {
+      params.endDate = filters.endDate;
+    }
+    const minimumAge = Number.parseInt(filters?.ageLimit ?? "", 10);
+    if (Number.isFinite(minimumAge) && minimumAge > 0) {
+      params.minAge = String(minimumAge);
+    }
+
+    const { data } = await api.get<Event[]>(`${this.path}/filters`, {
+      params,
+    });
+    console.log("Received filtered events from API:", data);
+    return data;
+  }
+
+  
 }
 
 export const eventService = new EventService();

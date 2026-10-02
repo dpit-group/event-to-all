@@ -8,19 +8,13 @@ import type { HomeStackParamList } from "../navigation/RootNavigator";
 import { useEffect, useState } from "react";
 import { eventService } from "../services/EventService";
 import type { Event } from "../dto/Events";
+import {events} from "../resources/GetAll";
 type HomeScreenProps = NativeStackScreenProps<HomeStackParamList, "HomeMain">;
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
-  const [events, setEvents] = useState<Event[]>([]);
+  
 
-  useEffect(() => {
-    eventService
-      .getAll()
-      .then(setEvents)
-      .catch((error: unknown) => {
-        console.error("Could not load events for HomeScreen:", error);
-      });
-  }, []);
+  
 
   return (
     <View style={styles.container}>

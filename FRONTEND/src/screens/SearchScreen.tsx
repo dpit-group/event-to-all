@@ -10,17 +10,18 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { EventCard } from "../components/EventCard";
-import { sampleEvents } from "../resources/events";
 import type { AppliedFilters } from "../dto/AppliedFilters";
+import type { Event } from "../dto/Events";
+import { eventService } from "../services/EventService";
 
 export function SearchScreen() {
   const [searchText, setSearchText] = useState("");
-  const [activeFilters, setActiveFilters] = useState<AppliedFilters | null>(
-    null,
-  );
+  const [events, setEvents] = useState<Event[]>([]);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const filteredEvents = sampleEvents.filter((event) => {
+  const activeFilters: AppliedFilters | null =
+    route.params?.appliedFilters ?? null;
+  const filteredEvents = events.filter((event) => {
     const query = searchText.trim().toLowerCase();
     return (
       !query ||
@@ -31,12 +32,24 @@ export function SearchScreen() {
   });
 
   useEffect(() => {
-    const filters = route.params?.appliedFilters ?? null;
-    setActiveFilters(filters);
-  }, [route.params]);
+    let isCurrentRequest = true;
+    eventService
+      .getFilteredEvents(activeFilters)
+      .then((loadedEvents) => {
+        if (isCurrentRequest) {
+          setEvents(loadedEvents);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Could not load filtered events:", error);
+      });
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [activeFilters]);
 
   const handleClearFilters = () => {
-    setActiveFilters(null);
     navigation.setParams({ appliedFilters: null });
   };
 

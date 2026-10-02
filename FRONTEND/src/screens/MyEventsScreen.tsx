@@ -12,7 +12,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { EventCard } from "../components/EventCard";
 import type { MyEventsStackParamList } from "../navigation/RootNavigator";
-import { sampleEvents } from "../resources/events";
+import { events as sampleEvents } from "../resources/GetAll";
 
 type MyEventsScreenProps = NativeStackScreenProps<
   MyEventsStackParamList,
