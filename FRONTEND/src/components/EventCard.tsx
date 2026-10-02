@@ -35,6 +35,16 @@ export function EventCard({
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = isFavorite(event.id);
 
+  const formatEventDate = (date: Date | string | undefined) => {
+    const parsedDate = date instanceof Date ? date : new Date(date ?? "");
+
+    if (!date || Number.isNaN(parsedDate.getTime())) {
+      return "Date unavailable";
+    }
+
+    return parsedDate.toLocaleDateString("en-GB");
+  };
+
   return (
     <Pressable
       style={[styles.eventCard, isFeatured && styles.featuredCard]}
@@ -42,7 +52,7 @@ export function EventCard({
     >
       <View style={[styles.cardAccent, isFeatured && styles.featuredAccent]} />
       <Image
-        source={{ uri: event.background}}
+        source={{ uri: event.background }}
         style={[styles.thumbnail, isFeatured && styles.featuredImage]}
       />
       <View
@@ -54,9 +64,7 @@ export function EventCard({
       >
         <Text style={styles.eventName}>{event.name}</Text>
         <Text style={styles.eventArtist}>{event.artist}</Text>
-        <Text style={styles.eventMeta}>
-          {event.date} · {event.time}
-        </Text>
+        <Text style={styles.eventMeta}>{formatEventDate(event.startDate)}</Text>
         <Text style={styles.eventLocation}>
           {event.city} · {event.address}
         </Text>
@@ -90,7 +98,7 @@ export function EventCard({
             let sharedtext =
               `${event.name}\n` +
               `${event.artist}\n` +
-              `${event.date} · ${event.time}\n` +
+              `${event.startDate}\n` +
               `${event.city} · ${event.address}`;
 
             try {

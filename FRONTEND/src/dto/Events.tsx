@@ -20,5 +20,5 @@ export type Event = {
   minAge?: number;
   artist?: string;
   background?: string;
-  icon?: string;
+  icon?: Blob;
 };

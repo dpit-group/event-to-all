@@ -8,6 +8,17 @@ type TicketProps = {
   onPress: () => void;
 };
 
+function formatDate(value: Date | string | undefined): string {
+  if (value === undefined) {
+    return "Date unavailable";
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "Date unavailable"
+    : date.toLocaleDateString("en-GB");
+}
+
 export function Ticket({ event, onPress }: TicketProps) {
   return (
     <Pressable
@@ -19,7 +30,7 @@ export function Ticket({ event, onPress }: TicketProps) {
       <Text style={styles.eventName}>{event.name}</Text>
       {event.artist ? <Text style={styles.artist}>{event.artist}</Text> : null}
       <Text style={styles.details}>
-        {event.date} · {event.time}
+        {formatDate(event.startDate)} · {formatDate(event.endDate)}
       </Text>
       <Text style={styles.details}>
         {event.city} · {event.address}
