@@ -19,8 +19,7 @@ import type {
   AccountStackParamList,
   MyEventsStackParamList,
 } from "../navigation/RootNavigator";
-import type { Event } from "./EventScreen";
-
+import type { Event } from "../dto/Events";
 type EditEventProps =
   | NativeStackScreenProps<AccountStackParamList, "EditEvent">
   | NativeStackScreenProps<MyEventsStackParamList, "EditEvent">;
@@ -72,11 +71,11 @@ function toEventDraft(event?: Event): EventDraft {
     address: event.address,
     lng: String(event.lng),
     lat: String(event.lat),
-    date: event.date,
-    time: event.time,
+    date: event.date ?? "",
+    time: event.time ?? "",
     minAge: event.minAge === undefined ? "" : String(event.minAge) as AgeLimit,
     artist: event.artist ?? "",
-    image: event.imageUrl,
+    image: event.imageUrl ?? event.background ?? "",
   };
 }
 

@@ -12,7 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
-import type { Event } from "../screens/EventScreen";
+import type { Event } from "../dto/Events";
 
 type EventCardProps = {
   event: Event;
@@ -42,7 +42,7 @@ export function EventCard({
     >
       <View style={[styles.cardAccent, isFeatured && styles.featuredAccent]} />
       <Image
-        source={{ uri: event.imageUrl }}
+        source={{ uri: event.background}}
         style={[styles.thumbnail, isFeatured && styles.featuredImage]}
       />
       <View

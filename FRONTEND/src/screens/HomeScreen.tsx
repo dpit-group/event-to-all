@@ -6,17 +6,37 @@ import { EventCard } from "../components/EventCard";
 import { HamburgerMenu } from "../components/Hamburger";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import { sampleEvents } from "../resources/events";
-
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
+import { EventService } from "../services/EventService";
+import {Event} from "../dto/Events";
 type HomeScreenProps = NativeStackScreenProps<HomeStackParamList, "HomeMain">;
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
+  const [events, setEvents] = useState<Event[]>([]);
+  const eventService = new EventService();
+
+  useEffect(() => {
+    eventService
+      .getAll()
+      .then((data) => {
+        console.log("Eventuri primite de service: ", data);
+        setEvents(data);
+      })
+      .catch((err) => {
+        console.error("Eroare la încărcarea eventurilor:", err);
+        console.error("Nu am putut încărca eventurile");
+      })
+      .finally(() => console.log("Încărcarea eventurilor finalizată"));
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.menuOverlay}></View>
       <Text style={styles.title}>Upcoming events</Text>
       <FlatList
         contentContainerStyle={styles.list}
-        data={sampleEvents}
+        data={events}
         keyExtractor={(event) => event.id.toString()}
         renderItem={({ item }) => (
           <EventCard

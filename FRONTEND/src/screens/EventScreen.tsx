@@ -11,20 +11,9 @@ import {
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
+import type { Event } from "../dto/Events";
 
-export type Event = {
-  id: number;
-  name: string;
-  city: string;
-  address: string;
-  lat: number;
-  lng: number;
-  date: string;
-  time: string;
-  minAge?: number;
-  artist?: string;
-  imageUrl: string;
-};
+export type { Event };
 
 type EventScreenProps = {
   route: {
@@ -113,7 +102,10 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
 
   return (
     <ScrollView style={styles.container}>
-      <Image source={{ uri: event.imageUrl }} style={styles.heroImage} />
+      <Image
+        source={{ uri: event.background}}
+        style={styles.heroImage}
+      />
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>{event.city.toUpperCase()}</Text>
         <Text style={styles.title}>{event.name}</Text>
