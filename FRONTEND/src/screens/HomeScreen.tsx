@@ -8,13 +8,12 @@ import type { HomeStackParamList } from "../navigation/RootNavigator";
 import { sampleEvents } from "../resources/events";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
-import { EventService } from "../services/EventService";
-import {Event} from "../dto/Events";
+import { eventService } from "../services/EventService";
+import { Event } from "../dto/Events";
 type HomeScreenProps = NativeStackScreenProps<HomeStackParamList, "HomeMain">;
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
   const [events, setEvents] = useState<Event[]>([]);
-  const eventService = new EventService();
 
   useEffect(() => {
     eventService
@@ -23,8 +22,8 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         console.log("Eventuri primite de service: ", data);
         setEvents(data);
       })
-      .catch((err) => {
-        console.error("Eroare la încărcarea eventurilor:", err);
+      .catch((error: unknown) => {
+        console.error("Eroare la încărcarea eventurilor:", error);
         console.error("Nu am putut încărca eventurile");
       })
       .finally(() => console.log("Încărcarea eventurilor finalizată"));
