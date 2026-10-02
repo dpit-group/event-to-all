@@ -13,7 +13,7 @@ private readonly path = "/event";
   async getAll(): Promise<Event[]> {
     console.log("Fetching all events from API");
     const { data } = await api.get<Event[]>(this.path);
-    console.log("Received events from API:", data);
+    console.log("Received events from API:", data);``
     return data;
     }
 

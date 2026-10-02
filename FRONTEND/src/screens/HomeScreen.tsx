@@ -16,17 +16,16 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
-    eventService
-      .getAll()
-      .then((data) => {
-        console.log("Eventuri primite de service: ", data);
-        setEvents(data);
-      })
-      .catch((error: unknown) => {
-        console.error("Eroare la încărcarea eventurilor:", error);
-        console.error("Nu am putut încărca eventurile");
-      })
-      .finally(() => console.log("Încărcarea eventurilor finalizată"));
+    eventService.getAll();
+    // .then((data) => {
+    //   console.log("Eventuri primite de service: ", data);
+    //   setEvents(data);
+    // })
+    // .catch((error: unknown) => {
+    //   console.error("Eroare la încărcarea eventurilor:", error);
+    //   console.error("Nu am putut încărca eventurile");
+    // })
+    // .finally(() => console.log("Încărcarea eventurilor finalizată"));
   }, []);
 
   return (

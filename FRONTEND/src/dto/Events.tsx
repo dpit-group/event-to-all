@@ -1,18 +1,24 @@
+export enum EventType {
+  Clubs = "Clubs",
+  Concerts = "Concerts",
+  Festivals = "Festivals",
+  Parties = "Parties",
+  Cultural = "Cultural",
+  ProductLaunch = "Product Launch",
+}
+
 export type Event = {
   id: number;
   name: string;
-  type?: string;
+  type: EventType;
   city: string;
   address: string;
   lat: number;
   lng: number;
-  startDate?: string;
-  endDate?: string;
+  startDate: Date;
+  endDate?: Date;
   minAge?: number;
   artist?: string;
   background?: string;
   icon?: string;
-  date?: string;
-  time?: string;
-  imageUrl?: string;
 };
