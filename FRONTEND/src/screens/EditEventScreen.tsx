@@ -21,6 +21,7 @@ import type {
 } from "../navigation/RootNavigator";
 import type { Event } from "../dto/Events";
 import { formatEventDate } from "../services/ParseDateString";
+import { eventService } from "../services/EventService";
 type EditEventProps =
   | NativeStackScreenProps<AccountStackParamList, "EditEvent">
   | NativeStackScreenProps<MyEventsStackParamList, "EditEvent">;
@@ -82,12 +83,16 @@ function toEventDraft(event?: Event): EventDraft {
     time,
     minAge: event.minAge === undefined ? "" : String(event.minAge) as AgeLimit,
     artist: event.artist ?? "",
-    background: event.background ?? "",
+    background: typeof event.background === "string" ? event.background : "",
   };
 }
 
 export function EditEventScreen({ navigation, route }: EditEventProps) {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const startDate = route.params?.event?.startDate;
+    const parsedDate = startDate ? new Date(startDate) : new Date();
+    return Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+  });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [event, setEvent] = useState(() => toEventDraft(route.params?.event));
@@ -99,25 +104,39 @@ export function EditEventScreen({ navigation, route }: EditEventProps) {
     setEvent((current) => ({ ...current, [field]: value }));
   }
 
-  function confirmEdits() {
-    const changedFields = Object.keys(originalEvent).filter(
-      (field) =>
-        event[field as keyof EventDraft] !==
-        originalEvent[field as keyof EventDraft],
-    );
+  async function confirmEdits() {
+    const original = route.params?.event;
+    if (!original) {
+      Alert.alert("Could not update event", "No event was selected.");
+      return;
+    }
 
-    const changes = changedFields.length
-      ? changedFields
-          .map((field) => {
-            const key = field as keyof EventDraft;
-            return `${key}: ${originalEvent[key]} -> ${event[key]}`;
-          })
-          .join("\n")
-      : "No changes were made.";
+    const latitude = Number(event.lat);
+    const longitude = Number(event.lng);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      Alert.alert("Invalid location", "Enter valid latitude and longitude values.");
+      return;
+    }
 
-    Alert.alert("Edits confirmed", changes, [
-      { text: "OK", onPress: () => navigation.goBack() },
-    ]);
+    try {
+      const updatedEvent = await eventService.patchEvent(original.id, {
+        name: event.name.trim(),
+        city: event.city.trim(),
+        address: event.address.trim(),
+        lat: latitude,
+        lng: longitude,
+        startDate: selectedDate,
+        minAge: event.minAge === "" ? undefined : Number(event.minAge),
+        artist: event.artist.trim() || undefined,
+        background: event.background.trim() || undefined,
+      });
+
+      Alert.alert("Event updated", `${updatedEvent.name} was updated.`, [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
+    } catch {
+      Alert.alert("Could not update event", "Please check the details and try again.");
+    }
   }
 
   return (
@@ -141,7 +160,7 @@ export function EditEventScreen({ navigation, route }: EditEventProps) {
           />
           <TextInput
             style={styles.input}
-            placeholder="Image URL"
+            placeholder="Background URL"
             value={event.background}
             onChangeText={(value) => updateEvent("background", value)}
           />

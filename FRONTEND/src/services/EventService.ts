@@ -45,8 +45,24 @@ class EventService {
     console.log("Received filtered events from API:", data);
     return data;
   }
-
-  
+  async deleteEvent(eventId: number): Promise<void> {
+    await api.delete(`${this.path}/${eventId}`);
+  }
+  async postEvent(
+    event: Omit<Event, "id" | "background"> & { background?: string },
+  ): Promise<Event> {
+    const { data } = await api.post<Event>(this.path, event);
+    return data;
+  }
+  async patchEvent(
+    eventId: number,
+    event: Partial<Omit<Event, "id" | "background">> & {
+      background?: string;
+    },
+  ): Promise<Event> {
+    const { data } = await api.patch<Event>(`${this.path}/${eventId}`, event);
+    return data;
+  }
 }
 
 export const eventService = new EventService();

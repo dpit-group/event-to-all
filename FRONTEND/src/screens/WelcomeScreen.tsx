@@ -25,7 +25,7 @@ export function WelcomeScreen({
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     >
-      {/* LOGO */}
+      {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
           source={require("../resources/Logo.png")}
@@ -36,58 +36,58 @@ export function WelcomeScreen({
         <Text style={styles.events}>— events —</Text>
 
         <Text style={styles.slogan}>
-          Vino și tu<Text style={styles.orange}>!</Text>
+          Join us<Text style={styles.orange}>!</Text>
         </Text>
       </View>
 
-      {/* TEXT PRINCIPAL */}
+      {/* Main heading */}
       <Text style={styles.mainText}>Find it. Feel it. Live it.</Text>
 
       <Text style={styles.description}>
-        Descoperă cele mai tari petreceri{"\n"}
-        și evenimente din zona ta.
+        Discover the best parties{"\n"}
+        and events in your area.
       </Text>
 
-      {/* FEATURES */}
+      {/* Features */}
       <View style={styles.features}>
         <View style={styles.featureRow}>
           <Ionicons name="location-outline" size={25} color="#6d28d9" />
-          <Text style={styles.featureText}>Evenimente aproape de tine</Text>
+          <Text style={styles.featureText}>Events near you</Text>
         </View>
 
         <View style={styles.featureRow}>
           <Ionicons name="filter-outline" size={25} color="#6d28d9" />
-          <Text style={styles.featureText}>Filtre inteligente</Text>
+          <Text style={styles.featureText}>Smart filters</Text>
         </View>
 
         <View style={styles.featureRow}>
           <Ionicons name="pricetag-outline" size={25} color="#6d28d9" />
-          <Text style={styles.featureText}>Oferte și reduceri exclusive</Text>
+          <Text style={styles.featureText}>Exclusive offers and discounts</Text>
         </View>
 
         <View style={styles.featureRow}>
           <Ionicons name="heart-outline" size={25} color="#6d28d9" />
-          <Text style={styles.featureText}>Favorite & remindere</Text>
+          <Text style={styles.featureText}>Favorites & reminders</Text>
         </View>
 
         <View style={styles.featureRow}>
           <Ionicons name="star-outline" size={25} color="#6d28d9" />
-          <Text style={styles.featureText}>Recenzii și recomandări</Text>
+          <Text style={styles.featureText}>Reviews and recommendations</Text>
         </View>
 
         <View style={styles.featureRow}>
           <Ionicons name="share-social-outline" size={25} color="#6d28d9" />
-          <Text style={styles.featureText}>Partajare cu prietenii</Text>
+          <Text style={styles.featureText}>Share with friends</Text>
         </View>
       </View>
 
-      {/* CONTINUĂ CA GUEST */}
+      {/* Continue as guest */}
       <TouchableOpacity style={styles.primaryButton} onPress={onContinue}>
-        <Text style={styles.primaryButtonText}>Continuă ca Guest</Text>
+        <Text style={styles.primaryButtonText}>Continue as Guest</Text>
       </TouchableOpacity>
-      {/*BUTON LOG IN*/}
+      {/* Log in button */}
       <TouchableOpacity style={styles.loginButton} onPress={onLogin}>
-        <Text style={styles.secondaryButtonText}>Log In</Text>
+        <Text style={styles.secondaryButtonText}>Log in</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
     </ScrollView>

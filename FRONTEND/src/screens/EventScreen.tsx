@@ -13,6 +13,7 @@ import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
 import type { Event } from "../dto/Events";
 import { formatEventDate } from "../services/ParseDateString";
+import { eventService } from "../services/EventService";
 
 export type { Event };
 
@@ -51,10 +52,16 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
       {
         text: "Remove",
         style: "destructive",
-        onPress: () =>
-          navigation.navigate("MyEventsMain", {
-            removedEventId: event.id,
-          }),
+        onPress: async () => {
+          try {
+            await eventService.deleteEvent(event.id);
+            navigation.navigate("MyEventsMain", {
+              removedEventId: event.id,
+            });
+          } catch {
+            Alert.alert("Could not remove event", "Please try again.");
+          }
+        },
       },
     ]);
   }

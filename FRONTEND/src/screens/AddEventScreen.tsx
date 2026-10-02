@@ -15,6 +15,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AccountStackParamList } from "../navigation/RootNavigator";
+import { EventType } from "../dto/Events";
+import { eventService } from "../services/EventService";
 
 type AddEventScreenProps = NativeStackScreenProps<
   AccountStackParamList,
@@ -29,13 +31,19 @@ enum AgeLimit {
 }
 
 const AGE_OPTIONS = Object.values(AgeLimit);
+const EVENT_TYPES = Object.values(EventType);
 
 export function AddEventScreen({ navigation }: AddEventScreenProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
+  const [selectedEndTime, setSelectedEndTime] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [eventForm, setEventForm] = useState({
     name: "",
+    type: EventType.Concerts,
     city: "",
     address: "",
     lng: "",
@@ -57,20 +65,53 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
     }));
   }
 
-  function handleAddEvent() {
-    console.log("New event added", eventForm);
-    setEventForm({
-      name: "",
-      city: "",
-      address: "",
-      lng: "",
-      lat: "",
-      date: "",
-      time: "",
-      minAge: "" as AgeLimit | "",
-      artist: "",
-      image: "",
-    });
+  async function handleAddEvent() {
+    const latitude = Number(eventForm.lat);
+    const longitude = Number(eventForm.lng);
+    if (
+      !eventForm.name.trim() ||
+      !eventForm.city.trim() ||
+      !eventForm.address.trim() ||
+      !eventForm.date ||
+      !eventForm.time ||
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude)
+    ) {
+      Alert.alert("Missing details", "Complete the event details before adding it.");
+      return;
+    }
+
+    try {
+      const endDate = selectedEndDate ? new Date(selectedEndDate) : undefined;
+      if (endDate) {
+        endDate.setHours(
+          selectedEndTime?.getHours() ?? 0,
+          selectedEndTime?.getMinutes() ?? 0,
+          0,
+          0,
+        );
+      }
+
+      const createdEvent = await eventService.postEvent({
+        name: eventForm.name.trim(),
+        type: eventForm.type,
+        city: eventForm.city.trim(),
+        address: eventForm.address.trim(),
+        lat: latitude,
+        lng: longitude,
+        startDate: selectedDate,
+        endDate,
+        minAge: eventForm.minAge === "" ? undefined : Number(eventForm.minAge),
+        artist: eventForm.artist.trim() || undefined,
+        background: eventForm.image.trim() || undefined,
+      });
+
+      Alert.alert(`${createdEvent.name} has been added`, undefined, [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
+    } catch {
+      Alert.alert("Could not add event", "Please check the details and try again.");
+    }
   }
 
   return (
@@ -92,6 +133,28 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
             value={eventForm.artist}
             onChangeText={(value) => updateEventForm("artist", value)}
           />
+          <Text style={styles.fieldLabel}>Event type</Text>
+          <View style={styles.eventTypeOptions}>
+            {EVENT_TYPES.map((type) => (
+              <Pressable
+                key={type}
+                style={[
+                  styles.eventTypeOption,
+                  eventForm.type === type && styles.ageOptionSelected,
+                ]}
+                onPress={() => updateEventForm("type", type)}
+              >
+                <Text
+                  style={[
+                    styles.eventTypeOptionText,
+                    eventForm.type === type && styles.ageOptionTextSelected,
+                  ]}
+                >
+                  {type}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Image URL"
@@ -160,6 +223,41 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
               </Text>
             </Pressable>
           </View>
+          <View style={styles.rowInputs}>
+            <Pressable
+              style={[styles.input, styles.halfInput]}
+              onPress={() => setShowEndDatePicker(true)}
+            >
+              <Text
+                style={
+                  selectedEndDate ? styles.inputText : styles.placeholderText
+                }
+              >
+                {selectedEndDate
+                  ? selectedEndDate.toLocaleDateString("en-GB")
+                  : "End date (optional)"}
+              </Text>
+            </Pressable>
+            <Pressable
+              disabled={!selectedEndDate}
+              style={[styles.input, styles.halfInput]}
+              onPress={() => setShowEndTimePicker(true)}
+            >
+              <Text
+                style={
+                  selectedEndTime ? styles.inputText : styles.placeholderText
+                }
+              >
+                {selectedEndTime
+                  ? selectedEndTime.toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hourCycle: "h23",
+                    })
+                  : "End time (optional)"}
+              </Text>
+            </Pressable>
+          </View>
           {showDatePicker && (
             <DateTimePicker
               value={selectedDate}
@@ -172,6 +270,36 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
                 if (date) {
                   setSelectedDate(date);
                   updateEventForm("date", date.toLocaleDateString());
+                }
+              }}
+            />
+          )}
+          {showEndDatePicker && (
+            <DateTimePicker
+              value={selectedEndDate ?? selectedDate}
+              mode="date"
+              display={Platform.OS === "ios" ? "compact" : "default"}
+              accentColor="#6f01ff"
+              themeVariant="light"
+              onChange={(_, date) => {
+                setShowEndDatePicker(false);
+                if (date) {
+                    setSelectedEndDate(date);
+                }
+              }}
+            />
+          )}
+          {showEndTimePicker && selectedEndDate && (
+            <DateTimePicker
+              value={selectedEndTime ?? selectedEndDate}
+              mode="time"
+              display={Platform.OS === "ios" ? "compact" : "default"}
+              accentColor="#6f01ff"
+              themeVariant="light"
+              onChange={(_, time) => {
+                setShowEndTimePicker(false);
+                if (time) {
+                  setSelectedEndTime(time);
                 }
               }}
             />
@@ -224,12 +352,7 @@ export function AddEventScreen({ navigation }: AddEventScreenProps) {
 
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => {
-            handleAddEvent();
-            Alert.alert(`${eventForm.name} has been added`, undefined, [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
-          }}
+          onPress={handleAddEvent}
         >
           <Text style={styles.primaryButtonText}>Add Event</Text>
         </TouchableOpacity>
@@ -303,6 +426,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
+  },
+  eventTypeOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+  },
+  eventTypeOption: {
+    maxWidth: "48%",
+    borderWidth: 1,
+    borderColor: "#d2d2d2",
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    alignItems: "center",
+  },
+  eventTypeOptionText: {
+    color: "#20233d",
+    fontSize: 14,
+    fontWeight: "600",
+    flexShrink: 1,
+    textAlign: "center",
   },
   ageOptions: {
     flexDirection: "row",

@@ -24,20 +24,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function restoreSession() {
+    async function clearPreviousSession() {
       try {
-        const storedUser = await SecureStore.getItemAsync(AUTH_STORAGE_KEY);
-        if (storedUser) {
-          setUser(JSON.parse(storedUser) as AuthUser);
-        }
-      } catch {
         await SecureStore.deleteItemAsync(AUTH_STORAGE_KEY);
+      } catch {
       } finally {
         setIsLoading(false);
       }
     }
 
-    restoreSession();
+    clearPreviousSession();
   }, []);
 
   const value = useMemo<AuthContextValue>(
