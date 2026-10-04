@@ -83,7 +83,7 @@ export function WelcomeScreen({
 
       {/* Continue as guest */}
       <TouchableOpacity style={styles.primaryButton} onPress={onContinue}>
-        <Text style={styles.primaryButtonText}>Continue as Guest</Text>
+        <Text style={styles.primaryButtonText}>Browse as Guest</Text>
       </TouchableOpacity>
       {/* Log in button */}
       <TouchableOpacity style={styles.loginButton} onPress={onLogin}>
