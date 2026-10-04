@@ -1,4 +1,5 @@
 import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   Image,
@@ -11,6 +12,7 @@ import {
 
 import type { AccountStackParamList } from "../navigation/RootNavigator";
 import type { Event } from "./EventScreen";
+import { formatEventDate } from "../services/ParseDateString";
 
 type BoughtTicketDetailsScreenProps = NativeStackScreenProps<
   AccountStackParamList,
@@ -23,12 +25,19 @@ export function BoughtTicketDetailsScreen({
 }: BoughtTicketDetailsScreenProps) {
   const { event } = route.params;
 
+  function seeOnMap() {
+    navigation.getParent?.()?.navigate("Map", {
+      screen: "MapMain",
+      params: { event },
+    });
+  }
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     >
-      <Image source={{ uri: event.imageUrl }} style={styles.eventImage} />
+      <Image source={{ uri: event.background }} style={styles.eventImage} />
       <View style={styles.content}>
         <Text style={styles.eyebrow}>TICKET DETAILS</Text>
         <Text style={styles.eventName}>{event.name}</Text>
@@ -48,8 +57,18 @@ export function BoughtTicketDetailsScreen({
                 childTickets: route.params.childTickets,
               })
             }
+            style={({ pressed }) => [
+              styles.ticketsButton,
+              pressed && styles.ticketsButtonPressed,
+            ]}
           >
-            <Text style={styles.sectionTitle}>Tickets ›</Text>
+            <View>
+              <Text style={styles.ticketsButtonTitle}>Tickets</Text>
+              <Text style={styles.ticketsButtonSubtitle}>
+                View your individual tickets
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#6f01ff" />
           </Pressable>
           {route.params.adultTickets === undefined &&
           route.params.childTickets === undefined ? (
@@ -79,14 +98,26 @@ export function BoughtTicketDetailsScreen({
 
         <View style={styles.detailSection}>
           <Text style={styles.sectionTitle}>When</Text>
-          <Text style={styles.detailValue}>{event.date}</Text>
-          <Text style={styles.detailValue}>{event.time}</Text>
+          <Text style={styles.detailValue}>{formatEventDate(event.startDate)}</Text>
         </View>
 
         <View style={styles.detailSection}>
           <Text style={styles.sectionTitle}>Where</Text>
-          <Text style={styles.detailValue}>{event.address}</Text>
-          <Text style={styles.detailValue}>{event.city}</Text>
+          <View style={styles.locationRow}>
+            <View style={styles.locationTextWrap}>
+              <Text style={styles.detailValue}>{event.address}</Text>
+              <Text style={styles.detailValue}>{event.city}</Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`See ${event.name} on map`}
+              onPress={seeOnMap}
+              style={styles.mapButton}
+            >
+              <Ionicons name="map-outline" size={15} color="#6f01ff" />
+              <Text style={styles.mapButtonText}>See on map</Text>
+            </Pressable>
+          </View>
         </View>
 
         {event.minAge !== undefined ? (
@@ -144,7 +175,7 @@ export function BoughtTicketPassesScreen({
     >
       <Text style={styles.passListEventName}>{event.name}</Text>
       <Text style={styles.passListEventMeta}>
-        {event.date} · {event.time}
+        {formatEventDate(event.startDate)} · {event.city} · {event.address}
       </Text>
       <Text style={styles.passListCaption}>
         {tickets.length} individual ticket{tickets.length === 1 ? "" : "s"}
@@ -202,21 +233,72 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   detailSection: {
-    borderTopColor: "#e7e3ed",
-    borderTopWidth: 1,
+    backgroundColor: "#faf8ff",
+    borderLeftColor: "#ff7417",
+    borderLeftWidth: 3,
+    borderRadius: 10,
     marginTop: 22,
-    paddingTop: 16,
+    padding: 16,
   },
   sectionTitle: {
-    color: "#20233d",
+    color: "#4f00bc",
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 8,
+  },
+  ticketsButton: {
+    alignItems: "center",
+    backgroundColor: "#f0eaff",
+    borderColor: "#d8c7ff",
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  ticketsButtonPressed: {
+    opacity: 0.7,
+  },
+  ticketsButtonTitle: {
+    color: "#4f00bc",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  ticketsButtonSubtitle: {
+    color: "#6b6280",
+    fontSize: 12,
+    marginTop: 3,
   },
   detailValue: {
     color: "#5e596d",
     fontSize: 16,
     lineHeight: 24,
+  },
+  locationRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+  },
+  locationTextWrap: {
+    flex: 1,
+    flexShrink: 1,
+  },
+  mapButton: {
+    alignItems: "center",
+    backgroundColor: "#f0eaff",
+    borderRadius: 16,
+    flexDirection: "row",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  mapButtonText: {
+    color: "#6f01ff",
+    fontSize: 12,
+    fontWeight: "700",
   },
   passListContainer: {
     flexGrow: 1,

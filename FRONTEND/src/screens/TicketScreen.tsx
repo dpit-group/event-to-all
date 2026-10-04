@@ -13,6 +13,7 @@ import {
 
 import type { Event } from "./EventScreen";
 import { usePurchasedEvents } from "../context/PurchasedEventsContext";
+import {formatEventDate} from "../services/ParseDateString";
 
 const PAYMENT_METHODS = [
   { label: "Apple Pay", icon: "logo-apple" },
@@ -33,10 +34,13 @@ type TicketScreenProps = {
   };
   navigation: {
     goBack: () => void;
+    getParent?: () => {
+      navigate: (screen: string, params?: object) => void;
+    };
   };
 };
 
-export function TicketScreen({ route }: TicketScreenProps) {
+export function TicketScreen({ route, navigation }: TicketScreenProps) {
   const { event } = route.params;
   const { addPurchasedEvent } = usePurchasedEvents();
   const [quantities, setQuantities] = useState({ adult: 1, child: 0 });
@@ -56,6 +60,13 @@ export function TicketScreen({ route }: TicketScreenProps) {
       }
 
       return { ...current, [type]: nextQuantity };
+    });
+  }
+
+  function seeOnMap() {
+    navigation.getParent?.()?.navigate("Map", {
+      screen: "MapMain",
+      params: { event },
     });
   }
 
@@ -91,12 +102,21 @@ export function TicketScreen({ route }: TicketScreenProps) {
       <View style={styles.eventSummary}>
         <Text style={styles.eyebrow}>TICKETS FOR</Text>
         <Text style={styles.eventName}>{event.name}</Text>
-        <Text style={styles.eventDetails}>
-          {event.date} · {event.time}
-        </Text>
-        <Text style={styles.eventDetails}>
-          {event.city} · {event.address}
-        </Text>
+        <Text style={styles.eventDetails}>{formatEventDate(event.startDate)}</Text>
+        <View style={styles.locationRow}>
+          <Text style={styles.eventDetails}>
+            {event.city} · {event.address}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`See ${event.name} on map`}
+            onPress={seeOnMap}
+            style={styles.mapButton}
+          >
+            <Ionicons name="map-outline" size={15} color="#6f01ff" />
+            <Text style={styles.mapButtonText}>See on map</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -273,17 +293,42 @@ const styles = StyleSheet.create({
   },
   eventDetails: {
     color: "#f0eaff",
+    flexShrink: 1,
     fontSize: 14,
     lineHeight: 21,
   },
+  locationRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    marginTop: 4,
+  },
+  mapButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#f0eaff",
+    borderRadius: 16,
+    flexDirection: "row",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  mapButtonText: {
+    color: "#6f01ff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
   section: {
     backgroundColor: "#fff",
+    borderLeftColor: "#ff7417",
+    borderLeftWidth: 3,
     borderRadius: 10,
     marginBottom: 16,
     padding: 18,
   },
   sectionTitle: {
-    color: "#20233d",
+    color: "#4f00bc",
     fontSize: 17,
     fontWeight: "800",
     marginBottom: 14,
@@ -337,15 +382,16 @@ const styles = StyleSheet.create({
   },
   totalRow: {
     alignItems: "center",
-    borderTopColor: "#eeeaf7",
-    borderTopWidth: 1,
+    backgroundColor: "#f6f1ff",
+    borderRadius: 8,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 6,
-    paddingTop: 14,
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   totalLabel: {
-    color: "#20233d",
+    color: "#4f00bc",
     fontSize: 15,
     fontWeight: "700",
   },

@@ -1,19 +1,58 @@
-import React, { useCallback, useRef } from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import type { MapStackParamList } from "../navigation/RootNavigator";
-import { events as sampleEvents } from "../resources/GetAll";
+import type { Event } from "../dto/Events";
+import { useAppliedFilters } from "../context/AppliedFiltersContext";
+import { eventService } from "../services/EventService";
+import { getFiltered } from "./SearchScreen";
 
 type MapScreenProps = NativeStackScreenProps<MapStackParamList, "MapMain">;
 
 export function MapScreen({ navigation, route }: MapScreenProps) {
   const mapRef = useRef<MapView>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const {
+    appliedFilters,
+    showFilteredEvents,
+    setShowFilteredEvents,
+  } = useAppliedFilters();
   const focusedEvent = route.params?.event;
-  
-  
+
+  useEffect(() => {
+    let isActive = true;
+    setEvents([]);
+
+    (showFilteredEvents
+      ? getFiltered(appliedFilters)
+      : eventService.getAll())
+      .then((loadedEvents) => {
+        if (isActive) {
+          setEvents(loadedEvents);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Could not load events:", error);
+        if (isActive) {
+          Alert.alert("Could not load events", "Please try again later.");
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [appliedFilters, showFilteredEvents]);
+
   const formatEventDate = (date: Date | string | undefined) => {
     const parsedDate = date instanceof Date ? date : new Date(date ?? "");
 
@@ -73,8 +112,8 @@ export function MapScreen({ navigation, route }: MapScreenProps) {
   );
 
   const initialRegion = {
-    latitude: sampleEvents[0]?.lat ?? 46.77,
-    longitude: sampleEvents[0]?.lng ?? 23.5895,
+    latitude: 46.77,
+    longitude: 23.5895,
     latitudeDelta: 2,
     longitudeDelta: 2,
   };
@@ -89,7 +128,7 @@ export function MapScreen({ navigation, route }: MapScreenProps) {
         showsMyLocationButton
         provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
       >
-        {sampleEvents.map((event) => (
+        {events.map((event) => (
           <Marker
             key={event.id}
             coordinate={{
@@ -114,6 +153,44 @@ export function MapScreen({ navigation, route }: MapScreenProps) {
           </Marker>
         ))}
       </MapView>
+      <View style={styles.eventToggle}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityState={{ selected: !showFilteredEvents }}
+          onPress={() => setShowFilteredEvents(false)}
+          style={[
+            styles.eventToggleOption,
+            !showFilteredEvents && styles.eventToggleOptionSelected,
+          ]}
+        >
+          <Text
+            style={[
+              styles.eventToggleText,
+              !showFilteredEvents && styles.eventToggleTextSelected,
+            ]}
+          >
+            All Events
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityState={{ selected: showFilteredEvents }}
+          onPress={() => setShowFilteredEvents(true)}
+          style={[
+            styles.eventToggleOption,
+            showFilteredEvents && styles.eventToggleOptionSelected,
+          ]}
+        >
+          <Text
+            style={[
+              styles.eventToggleText,
+              showFilteredEvents && styles.eventToggleTextSelected,
+            ]}
+          >
+            Filtered Events
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -124,6 +201,32 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  eventToggle: {
+    alignSelf: "center",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    elevation: 4,
+    flexDirection: "row",
+    overflow: "hidden",
+    position: "absolute",
+    top: 16,
+    zIndex: 1,
+  },
+  eventToggleOption: {
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+  },
+  eventToggleOptionSelected: {
+    backgroundColor: "#6f01ff",
+  },
+  eventToggleText: {
+    color: "#3b2b6f",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  eventToggleTextSelected: {
+    color: "#fff",
   },
   calloutBox: {
     backgroundColor: "#fff",

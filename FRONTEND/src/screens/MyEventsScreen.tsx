@@ -12,7 +12,8 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { EventCard } from "../components/EventCard";
 import type { MyEventsStackParamList } from "../navigation/RootNavigator";
-import { events as sampleEvents } from "../resources/GetAll";
+import type { Event } from "../dto/Events";
+import { eventService } from "../services/EventService";
 
 type MyEventsScreenProps = NativeStackScreenProps<
   MyEventsStackParamList,
@@ -20,7 +21,29 @@ type MyEventsScreenProps = NativeStackScreenProps<
 >;
 
 export function MyEventScreen({ navigation, route }: MyEventsScreenProps) {
-  const [events, setEvents] = useState(sampleEvents);
+  const [events, setEvents] = useState<Event[]>([]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    eventService
+      .getAll()
+      .then((loadedEvents) => {
+        if (isActive) {
+          setEvents(loadedEvents);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Could not load events:", error);
+        if (isActive) {
+          Alert.alert("Could not load events", "Please try again later.");
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   function removeEvent(eventId: number, eventName: string) {
     Alert.alert(

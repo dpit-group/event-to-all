@@ -111,9 +111,9 @@ export function EventScreen({ route, navigation }: EventScreenProps) {
   return (
     <ScrollView style={styles.container}>
       <Image
-         source={{
-    uri: `data:image/jpeg;base64,${event.background}`
-  }}
+        source={{
+          uri: `data:image/jpeg;base64,${event.background}`,
+        }}
         style={styles.heroImage}
       />
       <View style={styles.hero}>

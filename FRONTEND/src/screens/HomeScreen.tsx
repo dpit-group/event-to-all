@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { EventCard } from "../components/EventCard";
@@ -8,13 +8,32 @@ import type { HomeStackParamList } from "../navigation/RootNavigator";
 import { useEffect, useState } from "react";
 import { eventService } from "../services/EventService";
 import type { Event } from "../dto/Events";
-import {events} from "../resources/GetAll";
 type HomeScreenProps = NativeStackScreenProps<HomeStackParamList, "HomeMain">;
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
-  
+  const [events, setEvents] = useState<Event[]>([]);
 
-  
+  useEffect(() => {
+    let isActive = true;
+
+    eventService
+      .getAll()
+      .then((loadedEvents) => {
+        if (isActive) {
+          setEvents(loadedEvents);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Could not load events:", error);
+        if (isActive) {
+          Alert.alert("Could not load events", "Please try again later.");
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   return (
     <View style={styles.container}>

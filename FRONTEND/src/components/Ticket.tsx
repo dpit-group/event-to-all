@@ -53,8 +53,12 @@ export function Ticket({ event, onPress }: TicketProps) {
 
 const styles = StyleSheet.create({
   ticket: {
-    borderTopColor: "#e7e3ed",
-    borderTopWidth: 1,
+    backgroundColor: "#f7f3ff",
+    borderLeftColor: "#ff7417",
+    borderLeftWidth: 4,
+    borderRadius: 8,
+    marginBottom: 10,
+    paddingHorizontal: 14,
     paddingVertical: 14,
   },
   pressedTicket: {

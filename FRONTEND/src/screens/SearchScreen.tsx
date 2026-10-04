@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -13,10 +14,16 @@ import { EventCard } from "../components/EventCard";
 import type { AppliedFilters } from "../dto/AppliedFilters";
 import type { Event } from "../dto/Events";
 import { eventService } from "../services/EventService";
+import { useAppliedFilters } from "../context/AppliedFiltersContext";
+
+export function getFiltered(filters: AppliedFilters | null): Promise<Event[]> {
+  return eventService.getFilteredEvents(filters);
+}
 
 export function SearchScreen() {
   const [searchText, setSearchText] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
+  const { setAppliedFilters, setShowFilteredEvents } = useAppliedFilters();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const activeFilters: AppliedFilters | null =
@@ -32,9 +39,12 @@ export function SearchScreen() {
   });
 
   useEffect(() => {
+    setAppliedFilters(activeFilters);
+  }, [activeFilters, setAppliedFilters]);
+
+  useEffect(() => {
     let isCurrentRequest = true;
-    eventService
-      .getFilteredEvents(activeFilters)
+    getFiltered(activeFilters)
       .then((loadedEvents) => {
         if (isCurrentRequest) {
           setEvents(loadedEvents);
@@ -42,6 +52,12 @@ export function SearchScreen() {
       })
       .catch((error: unknown) => {
         console.error("Could not load filtered events:", error);
+        if (isCurrentRequest) {
+          Alert.alert(
+            "Could not load filtered events",
+            error instanceof Error ? error.message : "Please try again later.",
+          );
+        }
       });
 
     return () => {
@@ -51,6 +67,12 @@ export function SearchScreen() {
 
   const handleClearFilters = () => {
     navigation.setParams({ appliedFilters: null });
+  };
+
+  const handleSeeFilteredEventsOnMap = () => {
+    setAppliedFilters(activeFilters);
+    setShowFilteredEvents(true);
+    navigation.navigate("Map");
   };
 
   return (
@@ -99,7 +121,18 @@ export function SearchScreen() {
 
             {activeFilters && (
               <View style={styles.filterSummary}>
-                <Text style={styles.filterSummaryText}>Active filters</Text>
+                <View style={styles.filterSummaryHeader}>
+                  <Text style={styles.filterSummaryText}>Active filters</Text>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    onPress={handleSeeFilteredEventsOnMap}
+                    style={styles.mapFilteredButton}
+                  >
+                    <Text style={styles.mapFilteredButtonText}>
+                      See filtered events on map
+                    </Text>
+                  </TouchableOpacity>
+                </View>
                 <View style={styles.filterChipRow}>
                   {activeFilters.types.map((type) => (
                     <View key={type} style={styles.filterChip}>
@@ -236,7 +269,25 @@ const styles = StyleSheet.create({
     color: "#3b2b6f",
     fontSize: 13,
     fontWeight: "600",
+  },
+  filterSummaryHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
+  },
+  mapFilteredButton: {
+    backgroundColor: "#fff",
+    borderColor: "#6f01ff",
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 11,
+  },
+  mapFilteredButtonText: {
+    color: "#6f01ff",
+    fontSize: 11,
+    fontWeight: "700",
   },
   filterChipRow: {
     flexDirection: "row",

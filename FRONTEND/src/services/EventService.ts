@@ -1,4 +1,5 @@
 import { api } from "../api/client";
+import * as Location from "expo-location";
 import type { Event } from "../dto/Events";
 import type { AppliedFilters } from "../dto/AppliedFilters";
 
@@ -12,7 +13,7 @@ class EventService {
     return data;
   }
 
-    async getById(id: string): Promise<Event> {
+  async getById(id: string): Promise<Event> {
     const { data } = await api.get<Event>(`${this.path}/${id}`);
     return data;
   }
@@ -37,6 +38,26 @@ class EventService {
     const minimumAge = Number.parseInt(filters?.ageLimit ?? "", 10);
     if (Number.isFinite(minimumAge) && minimumAge > 0) {
       params.minAge = String(minimumAge);
+    }
+
+    //get the location from the user if the distance filter is set
+    if (filters) {
+      if (!Number.isFinite(filters.distance) || filters.distance < 0) {
+        throw new Error("Distance filter must be a non-negative number");
+      }
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        throw new Error("Location permission is required to filter by distance");
+      }
+
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      params.distance = String(filters.distance);
+      params.latitude = String(position.coords.latitude);
+      params.longitude = String(position.coords.longitude);
     }
 
     const { data } = await api.get<Event[]>(`${this.path}/filters`, {

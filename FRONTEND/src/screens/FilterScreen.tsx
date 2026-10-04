@@ -28,7 +28,7 @@ const DEFAULT_FILTERS = {
   startDate: new Date() as Date,
   endDate: null as Date | null,
   distance: 2,
-  selectedTypes: [] as EventType[],
+  selectedTypes: ["Concerts"] as EventType[],
   ageLimit: "0+" as AgeLimit,
 };
 

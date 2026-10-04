@@ -21,6 +21,7 @@ import { EditEventScreen } from "../screens/EditEventScreen";
 import { MyEventScreen } from "../screens/MyEventsScreen";
 import type { Event } from "../screens/EventScreen";
 import { useAuth } from "../context/AuthContext";
+import { AppliedFiltersProvider } from "../context/AppliedFiltersContext";
 
 import { MapScreen } from "../screens/MapScreen";
 
@@ -295,88 +296,90 @@ export function RootNavigator({
   }
 
   return (
-    <Tab.Navigator
-      initialRouteName={initialRouteName}
-      screenOptions={{
-        headerShown: false,
-        headerStyle: {
-          height: 100,
-        },
-        headerTintColor: "#1d1d1d",
-        headerTitleAlign: "left",
-        tabBarActiveTintColor: PRIMARY_COLOR,
-        tabBarInactiveTintColor: "gray",
-        headerTitleStyle: {
-          fontSize: 16,
-          fontWeight: "600",
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeStackNavigator}
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
+    <AppliedFiltersProvider>
+      <Tab.Navigator
+        initialRouteName={initialRouteName}
+        screenOptions={{
+          headerShown: false,
+          headerStyle: {
+            height: 100,
+          },
+          headerTintColor: "#1d1d1d",
+          headerTitleAlign: "left",
+          tabBarActiveTintColor: PRIMARY_COLOR,
+          tabBarInactiveTintColor: "gray",
+          headerTitleStyle: {
+            fontSize: 16,
+            fontWeight: "600",
+          },
         }}
-      />
-      <Tab.Screen
-        name="Search"
-        component={SearchStackNavigator}
-        options={{
-          title: "Search",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Map"
-        component={MapStackNavigator}
-        options={{
-          title: "Map",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="map" color={color} size={size} />
-          ),
-        }}
-      />
-      {isLoggedIn ? (
+      >
         <Tab.Screen
-          name="Favorite"
-          component={FavoriteStackNavigator}
+          name="Home"
+          component={HomeStackNavigator}
           options={{
-            title: "Favorite",
+            title: "Home",
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="heart" color={color} size={size} />
+              <Ionicons name="home" color={color} size={size} />
             ),
           }}
         />
-      ) : null}
-      {isLoggedIn && user?.accountType === "business" ? (
         <Tab.Screen
-          name="MyEvents"
-          component={MyEventsStackNavigator}
+          name="Search"
+          component={SearchStackNavigator}
           options={{
-            title: "My Events",
+            title: "Search",
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="briefcase" color={color} size={size} />
+              <Ionicons name="search" color={color} size={size} />
             ),
           }}
         />
-      ) : null}
-      <Tab.Screen
-        name="Account"
-        component={AccountStackNavigator}
-        options={{
-          title: "Account",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+        <Tab.Screen
+          name="Map"
+          component={MapStackNavigator}
+          options={{
+            title: "Map",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="map" color={color} size={size} />
+            ),
+          }}
+        />
+        {isLoggedIn ? (
+          <Tab.Screen
+            name="Favorite"
+            component={FavoriteStackNavigator}
+            options={{
+              title: "Favorite",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="heart" color={color} size={size} />
+              ),
+            }}
+          />
+        ) : null}
+        {isLoggedIn && user?.accountType === "business" ? (
+          <Tab.Screen
+            name="MyEvents"
+            component={MyEventsStackNavigator}
+            options={{
+              title: "My Events",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="briefcase" color={color} size={size} />
+              ),
+            }}
+          />
+        ) : null}
+        <Tab.Screen
+          name="Account"
+          component={AccountStackNavigator}
+          options={{
+            title: "Account",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" color={color} size={size} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </AppliedFiltersProvider>
   );
 }
 

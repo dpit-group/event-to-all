@@ -14,6 +14,7 @@ import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
 import type { Event } from "../dto/Events";
 import { formatEventDate } from "../services/ParseDateString";
+import { eventService } from "../services/EventService";
 type EventCardProps = {
   event: Event;
   onPress: () => void;
@@ -43,9 +44,9 @@ export function EventCard({
     >
       <View style={[styles.cardAccent, isFeatured && styles.featuredAccent]} />
       <Image
-         source={{
-    uri: `data:image/jpeg;base64,${event.background}`
-  }}
+        source={{
+          uri: `data:image/jpeg;base64,${event.background}`,
+        }}
         style={[styles.thumbnail, isFeatured && styles.featuredImage]}
       />
       <View
