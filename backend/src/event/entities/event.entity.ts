@@ -48,9 +48,9 @@ export class Event extends Model {
   @Column
   declare artist?: string;
 
-  @Column
-  declare background?: string;
+  @Column({ type: DataType.BLOB })
+  declare background?: Buffer;
 
-  @Column
-  declare icon?: string;
+  @Column({ type: DataType.BLOB })
+  declare icon?: Buffer;
 }

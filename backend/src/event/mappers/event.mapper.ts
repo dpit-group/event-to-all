@@ -18,11 +18,26 @@ export function mapCreateEventDtoToEntity(
       : undefined,
     minAge: createEventDto.minAge,
     artist: createEventDto.artist,
-    background: createEventDto.background,
-    icon: createEventDto.icon,
+    background: createEventDto.background
+      ? toBuffer(createEventDto.background)
+      : undefined,
+    icon: createEventDto.icon ? toBuffer(createEventDto.icon) : undefined,
   });
 }
 
 export function mapEventToResponse(event: Event): EventResponseDto {
-  return event.toJSON() as EventResponseDto;
+  const json = event.toJSON();
+  return {
+    ...json,
+    background: toBase64(json.background),
+    icon: toBase64(json.icon),
+  } as EventResponseDto;
+}
+
+export function toBuffer(value: string): Buffer {
+  return Buffer.from(value, 'base64');
+}
+
+export function toBase64(value: Buffer): string | undefined {
+  return value ? Buffer.from(value).toString('base64') : undefined;
 }
