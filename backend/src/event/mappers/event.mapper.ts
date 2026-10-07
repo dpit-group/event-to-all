@@ -41,3 +41,9 @@ export function toBuffer(value: string): Buffer {
 export function toBase64(value: Buffer): string | undefined {
   return value ? Buffer.from(value).toString('base64') : undefined;
 }
+
+export function mapToEventResponseDtoArray(
+  events: Event[],
+): EventResponseDto[] {
+  return events.map(mapEventToResponse);
+}

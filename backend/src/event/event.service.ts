@@ -4,10 +4,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { EventRepository } from './event.repository';
 import { filterEvents, Filter } from '../filter/filter';
-import {
-  mapCreateEventDtoToEntity,
-  mapEventToResponse,
-} from './mappers/event.mapper';
+import { mapEventToResponse } from './mappers/event.mapper';
 
 @Injectable()
 export class EventService {
